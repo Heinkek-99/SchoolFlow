@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolFlow.Application.Auth.Commands;
+using SchoolFlow.Shared.Dtos;
 
 namespace SchoolFlow.API.Controllers;
 
