@@ -1,0 +1,57 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+
+# Database
+*.mdf
+*.ldf
+*.ndf
+
+# SQL Server files
+*.bak
+*.bakup
+
+# User secrets
+appsettings.Development.json
+appsettings.Production.json
+**/appsettings.*.json
+!**/appsettings.json
+
+# Docker
+**/docker-compose.override.yml
+
+# Logs
+logs/
+*.log
+
+# Photos/uploads
+**/wwwroot/uploads/
+**/Photos/
