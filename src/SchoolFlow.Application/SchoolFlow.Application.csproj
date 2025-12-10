@@ -12,11 +12,13 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+     <!-- Microsoft Extensions -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+ 
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SchoolFlow.Domain\SchoolFlow.Domain.csproj" />
-    <ProjectReference Include="..\SchoolFlow.Infrastructure\SchoolFlow.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

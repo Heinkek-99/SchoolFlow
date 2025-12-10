@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SchoolFlow.Domain\SchoolFlow.Domain.csproj" />
-    <ProjectReference Include="..\SchoolFlow.Shared\SchoolFlow.Shared.csproj" />
+    <ProjectReference Include="..\SchoolFlow.Application\SchoolFlow.Application.csproj" />
   </ItemGroup>
   
 </Project>

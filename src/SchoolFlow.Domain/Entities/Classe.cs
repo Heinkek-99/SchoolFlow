@@ -23,11 +23,11 @@ public enum Niveau
     CE2 = 3,
     CM1 = 4,
     CM2 = 5,
-    SixiÚme = 6,
-    CinquiÚme = 7,
-    QuatriÚme = 8,
-    TroisiÚme = 9,
+    Sixieme = 6,
+    Cinquieme = 7,
+    Quatrieme = 8,
+    Troisieme = 9,
     Seconde = 10,
-    PremiÚre = 11,
+    Premiere = 11,
     Terminale = 12
 }
