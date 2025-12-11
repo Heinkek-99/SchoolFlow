@@ -19,29 +19,39 @@ public class GetAllFamillesQueryHandler : IRequestHandler<GetAllFamillesQuery, R
         var familles = await _context.Familles
             .Include(f => f.Eleves.Where(e => !e.IsArchived))
                 .ThenInclude(e => e.Frais.Where(fr => !fr.IsArchived))
+            .OrderBy(f => f.CreatedAt)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(f => new FamilleDto(
-                f.Id,
-                f.NomPere,
-                f.PrenomPere,
-                f.TelephonePrincipal,
-                f.Ville,
-                f.Eleves.Count(e => !e.IsArchived),
-                f.Eleves.Sum(e => e.Frais.Sum(fr => fr.Montant)),
-                f.Eleves.Sum(e => e.Frais.Sum(fr => fr.MontantPaye)),
-                f.Eleves.Sum(e => e.Frais.Sum(fr => fr.Montant)) - f.Eleves.Sum(e => e.Frais.Sum(fr => fr.MontantPaye)),
-                CalculerStatut(
-                    f.Eleves.Sum(e => e.Frais.Sum(fr => fr.Montant)),
-                    f.Eleves.Sum(e => e.Frais.Sum(fr => fr.MontantPaye))
-                )
-            ))
+            .AsNoTracking()
             .ToListAsync(ct);
 
-        return Result<List<FamilleDto>>.Success(familles);
+            var result = familles.Select(f =>
+            {
+                var elevesActifs = f.Eleves.Where(e => !e.IsArchived).ToList();
+                // var nombreEnfants = f.Eleves.Count(e => !e.IsArchived);
+                var totalDu = elevesActifs.Sum(e => e.Frais.Sum(fr => fr.Montant));
+                var totalPaye = elevesActifs.Sum(e => e.Frais.Sum(fr => fr.MontantPaye));
+                var soldeGlobal = totalDu - totalPaye;
+                var statutPaiement = CalculerStatut(totalDu, totalPaye);
+
+                return new FamilleDto(
+                    f.Id,
+                    f.NomPere,
+                    f.PrenomPere,
+                    f.TelephonePrincipal,
+                    f.Ville,
+                    elevesActifs.Count,
+                    totalDu,
+                    totalPaye,
+                    soldeGlobal,
+                    CalculerStatut(totalDu, totalPaye)  
+                );
+            }).ToList();
+
+        return Result<List<FamilleDto>>.Success(result);
     }
 
-    private string CalculerStatut(decimal totalDu, decimal totalPaye)
+    private static string CalculerStatut(decimal totalDu, decimal totalPaye)
     {
         var solde = totalDu - totalPaye;
         if (solde <= 0) return "Payé";

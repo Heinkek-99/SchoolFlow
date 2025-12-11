@@ -17,10 +17,12 @@ public class GetFamilleByIdQueryHandler : IRequestHandler<GetFamilleByIdQuery, R
     public async Task<Result<FamilleDetailDto>> Handle(GetFamilleByIdQuery request, CancellationToken ct)
     {
         var famille = await _context.Familles
+            .AsSplitQuery()
             .Include(f => f.Eleves.Where(e => !e.IsArchived))
                 .ThenInclude(e => e.Classe)
-            .Include(f => f.Eleves)
+            .Include(f => f.Eleves.Where(e => !e.IsArchived))
                 .ThenInclude(e => e.Frais.Where(fr => !fr.IsArchived))
+            .AsNoTracking()
             .FirstOrDefaultAsync(f => f.Id == request.Id, ct);
 
         if (famille == null)
@@ -34,9 +36,17 @@ public class GetFamilleByIdQueryHandler : IRequestHandler<GetFamilleByIdQuery, R
                 e.Prenom,
                 e.Matricule,
                 e.Classe.Nom,
-                e.Frais.Sum(f => f.Montant) - e.Frais.Sum(f => f.MontantPaye)
+                e.Frais.Sum(f => f.Montant - f.MontantPaye)
             ))
             .ToList();
+
+        var totalDu = famille.Eleves
+            .Where(e => !e.IsArchived)
+            .Sum(e => e.Frais.Sum(f => f.Montant));
+
+        var totalPaye = famille.Eleves
+            .Where(e => !e.IsArchived)
+            .Sum(e => e.Frais.Sum(f => f.MontantPaye));
 
         var dto = new FamilleDetailDto(
             famille.Id,
@@ -51,9 +61,9 @@ public class GetFamilleByIdQueryHandler : IRequestHandler<GetFamilleByIdQuery, R
             famille.Ville,
             famille.TelephonePrincipal,
             enfants,
-            famille.Eleves.Sum(e => e.Frais.Sum(f => f.Montant)),
-            famille.Eleves.Sum(e => e.Frais.Sum(f => f.MontantPaye)),
-            famille.Eleves.Sum(e => e.Frais.Sum(f => f.Montant - f.MontantPaye))
+            totalDu,
+            totalPaye,
+            totalDu - totalPaye
         );
 
         return Result<FamilleDetailDto>.Success(dto);

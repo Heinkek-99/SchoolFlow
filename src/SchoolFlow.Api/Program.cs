@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -34,6 +35,7 @@ builder.Services.AddControllers();
 // FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
 // builder.Services.AddValidatorsFromAssemblyContaining<Application.DependencyInjection>();
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 // Application Layer (MediatR + Validators)
 builder.Services.AddApplication();
@@ -142,9 +144,22 @@ builder.Services.AddSwaggerGen(options =>
 // ============================================
 // 6. HEALTHCHECKS
 // ============================================
-// builder.Services.AddHealthChecks()
-//     .AddDbContextCheck<ApplicationDbContext>("database");
-
+builder.Services.AddHealthChecks()
+    // .AddDbContextCheck<ApplicationDbContext>("Database");
+     .AddCheck("Database", () =>
+    {
+        using var scope = builder.Services.BuildServiceProvider().CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        try
+        {
+            dbContext.Database.CanConnect();
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("Database connection OK");
+        }
+        catch (Exception ex)
+        {
+            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy("Database connection failed", ex);
+        }
+    });
 // ============================================
 // 7. BUILD APP
 // ============================================
@@ -198,7 +213,7 @@ if (app.Environment.IsDevelopment())
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "❌ Error applying database migrations");
+        Log.Error(ex, "❌ [ERROR] Error applying database migrations");
     }
 }
 

@@ -1,4 +1,5 @@
 using MediatR;
+using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using SchoolFlow.Application.Auth.Commands;
 using SchoolFlow.Application.Common.Interfaces;
@@ -30,17 +31,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
         if (user.LockedUntil.HasValue && user.LockedUntil.Value > DateTime.UtcNow)
             return Result<LoginResponse>.Failure($"Compte verrouillé jusqu'à {user.LockedUntil.Value:HH:mm}");
 
-        // ⚠️ FIX: Utiliser le namespace complet pour BCrypt
-        // if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-        // {
-        //     user.FailedLoginAttempts++;
-        //     if (user.FailedLoginAttempts >= 5)
-        //     {
-        //         user.LockedUntil = DateTime.UtcNow.AddMinutes(30);
-        //     }
-        //     await _context.SaveChangesAsync(ct);
-        //     return Result<LoginResponse>.Failure("Nom d'utilisateur ou mot de passe incorrect");
-        // }
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        {
+            user.FailedLoginAttempts++;
+            if (user.FailedLoginAttempts >= 5)
+            {
+                user.LockedUntil = DateTime.UtcNow.AddMinutes(30);
+            }
+            await _context.SaveChangesAsync(ct);
+            return Result<LoginResponse>.Failure("Nom d'utilisateur ou mot de passe incorrect");
+        }
 
         // Succès - Reset tentatives
         user.FailedLoginAttempts = 0;

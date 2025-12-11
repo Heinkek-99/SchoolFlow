@@ -93,14 +93,17 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasOne(e => e.Famille)
                 .WithMany(f => f.Eleves)
                 .HasForeignKey(e => e.FamilleId);
+                // .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(e => e.Classe)
                 .WithMany(c => c.Eleves)
                 .HasForeignKey(e => e.ClasseId);
+                // .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(e => e.AnneeScolaire)
                 .WithMany(a => a.Eleves)
                 .HasForeignKey(e => e.AnneeScolaireId);
+                // .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasMany(e => e.Frais)
                 .WithOne(f => f.Eleve)
@@ -126,30 +129,11 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasOne(c => c.AnneeScolaire)
                 .WithMany(a => a.Classes)
                 .HasForeignKey(c => c.AnneeScolaireId);
+                // .OnDelete(DeleteBehavior.Restrict); 
             
             entity.Ignore(c => c.EffectifActuel);
             
             entity.HasQueryFilter(c => !c.IsArchived);
-        });
-
-        // Configuration AnneeScolaire
-        modelBuilder.Entity<AnneeScolaire>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Libelle).HasMaxLength(20).IsRequired();
-            
-            entity.HasMany(a => a.Periodes)
-                .WithOne(p => p.AnneeScolaire)
-                .HasForeignKey(p => p.AnneeScolaireId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        // Configuration Periode
-        modelBuilder.Entity<Periode>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Libelle).HasMaxLength(50).IsRequired();
-            entity.Property(e => e.Type).HasConversion<string>();
         });
 
         // Configuration TypeFrais
@@ -182,10 +166,12 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasOne(f => f.Eleve)
                 .WithMany(e => e.Frais)
                 .HasForeignKey(f => f.EleveId);
+                // .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(f => f.TypeFrais)
                 .WithMany(t => t.Frais)
                 .HasForeignKey(f => f.TypeFraisId);
+                // .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(f => f.Periode)
                 .WithMany()
@@ -195,6 +181,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasMany(f => f.Ventilations)
                 .WithOne(v => v.Frais)
                 .HasForeignKey(v => v.FraisId);
+                // .OnDelete(DeleteBehavior.Restrict); 
             
             entity.Ignore(f => f.Solde);
             entity.Ignore(f => f.IsEchu);
@@ -215,10 +202,12 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasOne(p => p.Famille)
                 .WithMany(f => f.Paiements)
                 .HasForeignKey(p => p.FamilleId);
+                // .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(p => p.EnregistreParUtilisateur)
                 .WithMany()
-                .HasForeignKey(p => p.EnregistrePar);
+                .HasForeignKey(p => p.EnregistrePar)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasMany(p => p.Ventilations)
                 .WithOne(v => v.Paiement)
@@ -235,11 +224,14 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             
             entity.HasOne(v => v.Paiement)
                 .WithMany(p => p.Ventilations)
-                .HasForeignKey(v => v.PaiementId);
+                .HasForeignKey(v => v.PaiementId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(v => v.Frais)
                 .WithMany(f => f.Ventilations)
-                .HasForeignKey(v => v.FraisId);
+                .HasForeignKey(v => v.FraisId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Configuration Note
@@ -252,23 +244,20 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             
             entity.HasOne(n => n.Eleve)
                 .WithMany(e => e.Notes)
-                .HasForeignKey(n => n.EleveId);
+                .HasForeignKey(n => n.EleveId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
 
             entity.HasOne(n => n.Matiere)
                 .WithMany(m => m.Notes)
-                .HasForeignKey(n => n.MatiereId);
+                .HasForeignKey(n => n.MatiereId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasOne(n => n.Periode)
                 .WithMany()
-                .HasForeignKey(n => n.PeriodeId);
-        });
-
-        // Configuration Matiere
-        modelBuilder.Entity<Matiere>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
-            entity.Property(e => e.Libelle).HasMaxLength(100).IsRequired();
+                .HasForeignKey(n => n.PeriodeId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Configuration AuditLog
@@ -283,12 +272,56 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             
             entity.HasOne(a => a.Utilisateur)
                 .WithMany(u => u.AuditLogs)
-                .HasForeignKey(a => a.UtilisateurId);
+                .HasForeignKey(a => a.UtilisateurId)
+                .IsRequired(false) 
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
+        ConfigureOtherEntities(modelBuilder);
+        
         // Seed Data
         SeedData(modelBuilder);
     }
+
+    private void ConfigureOtherEntities(ModelBuilder modelBuilder)
+    {
+        // Additional entity configurations can be added here
+        // Configuration AnneeScolaire
+        modelBuilder.Entity<AnneeScolaire>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Libelle).HasMaxLength(20).IsRequired();
+            
+            entity.HasMany(a => a.Periodes)
+                .WithOne(p => p.AnneeScolaire)
+                .HasForeignKey(p => p.AnneeScolaireId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Configuration Periode
+        modelBuilder.Entity<Periode>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Libelle).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Type).HasConversion<string>();
+        });
+
+        // Configuration Matiere
+        modelBuilder.Entity<Matiere>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Libelle).HasMaxLength(100).IsRequired();
+        });
+
+    }
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    // {
+    //     optionsBuilder.UseSqlServer(
+    //         "Server=localhost,1433;Database=SchoolFlowDb;User Id=sa;Password=Azerty12;",
+    //         options => options.EnableRetryOnFailure());
+    // }
+
 
     private void SeedData(ModelBuilder modelBuilder)
     {
