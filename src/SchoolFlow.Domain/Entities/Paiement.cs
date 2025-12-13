@@ -9,13 +9,19 @@ public class Paiement : BaseEntity
     public ModePaiement ModePaiement { get; set; }
     public string? Reference { get; set; } // Numéro chèque, référence virement
     public string? Commentaire { get; set; }
-    
     public Guid EnregistrePar { get; set; }
+    
+    public bool IsVentilationComplete => 
+        Ventilations.Any() && 
+        Math.Abs(Ventilations.Sum(v => v.MontantVentile) - MontantTotal) < 0.01m;
+    public int NombreElevesBeneficiaires => 
+        Ventilations.Select(v => v.EleveId).Distinct().Count();
     
     // Navigation
     public Famille Famille { get; set; } = null!;
     public Utilisateur EnregistreParUtilisateur { get; set; } = null!;
     public ICollection<VentilationPaiement> Ventilations { get; set; } = new List<VentilationPaiement>();
+
 }
 
 public enum ModePaiement

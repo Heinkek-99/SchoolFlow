@@ -11,8 +11,8 @@ public class Eleve : BaseEntity
     public string? PhotoPath { get; set; }
     
     public Guid FamilleId { get; set; }
-    public Guid ClasseId { get; set; }
-    public Guid AnneeScolaireId { get; set; }
+    public Guid? ClasseId { get; set; }
+    public Guid? AnneeScolaireId { get; set; }
     
     // Infos complémentaires
     public string? Nationalite { get; set; } = "Camerounaise";
@@ -20,19 +20,78 @@ public class Eleve : BaseEntity
     public string? Allergies { get; set; }
     public string? ContactUrgence { get; set; }
     
+    // Remarques
+    public string? Remarques { get; set; }
+
     // Statut
     public StatutEleve Statut { get; set; } = StatutEleve.Actif;
     public DateTime DateInscription { get; set; } = DateTime.UtcNow;
     
     // Calculs financiers
+
+    // Nom complet de l'élève
+    public string NomComplet => $"{Prenom} {Nom}";
+
+    // Âge de l'élève en années
+    public int Age
+    {
+        get
+        {
+            var today = DateTime.Today;
+            var age = today.Year - DateNaissance.Year;
+            if (DateNaissance.Date > today.AddYears(-age)) age--;
+            return age;
+        }
+    }
+
+    // Total des frais dus par l'élève
     public decimal TotalDu => Frais.Where(f => !f.IsArchived).Sum(f => f.Montant);
+
+    // Total des montants déjà payés
     public decimal TotalPaye => Frais.Where(f => !f.IsArchived).Sum(f => f.MontantPaye);
+
+    // Solde restant à payer
     public decimal Solde => TotalDu - TotalPaye;
-    
+
+    // Indique si l'élève est à jour dans ses paiements
+    public bool EstAJour => Solde <= 0.01m;
+
+    // Pourcentage de paiement
+    public decimal PourcentagePaye => 
+        TotalDu > 0 ? Math.Round((TotalPaye / TotalDu) * 100, 2) : 0;
+
+    // Nombre de frais impayés
+    public int NombreFraisImpayes => 
+        Frais.Count(f => !f.IsArchived && f.Solde > 0.01m);
+
+    // Frais le plus ancien non payé
+    public Frais? FraisPlusAncienImpaye => 
+        Frais
+            .Where(f => !f.IsArchived && f.Solde > 0.01m)
+            .OrderBy(f => f.DateEcheance)
+            .FirstOrDefault();
+
+    // // Moyenne générale de l'élève (si notes disponibles)
+    // public decimal? MoyenneGenerale
+    // {
+    //     get
+    //     {
+    //         var notesValides = Notes
+    //             .Where(n => n.Valeur.HasValue && n.NoteSur > 0)
+    //             .ToList();
+
+    //         if (!notesValides.Any()) return null;
+
+    //         var totalPoints = notesValides.Sum(n => (n.Valeur!.Value / n.NoteSur) * 20);
+    //         return Math.Round(totalPoints / notesValides.Count, 2);
+    //     }
+    // }
+
+
     // Navigation
     public Famille Famille { get; set; } = null!;
-    public Classe Classe { get; set; } = null!;
-    public AnneeScolaire AnneeScolaire { get; set; } = null!;
+    public Classe? Classe { get; set; } = null!;
+    public AnneeScolaire? AnneeScolaire { get; set; } = null!;
     public ICollection<Frais> Frais { get; set; } = new List<Frais>();
     public ICollection<Note> Notes { get; set; } = new List<Note>();
 }

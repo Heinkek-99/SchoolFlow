@@ -4,5 +4,5 @@ using SchoolFlow.Shared.Dtos;
 
 namespace SchoolFlow.Application.Eleves.Queries;
 
-public record GetEleveDossierQuery(Guid Id) : IRequest<Result<EleveDossierDto>>;
+public record GetElevesDossierQuery(Guid Id) : IRequest<Result<EleveDossierDto>>;
 

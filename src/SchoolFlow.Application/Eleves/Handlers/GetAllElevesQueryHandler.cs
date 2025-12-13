@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SchoolFlow.Application.Common.Interfaces;
 using SchoolFlow.Application.Common.Models;
 using SchoolFlow.Application.Eleves.Queries;
+using SchoolFlow.Domain.Entities;
 using SchoolFlow.Shared.Dtos;
 
 public class GetAllElevesQueryHandler : IRequestHandler<GetAllElevesQuery, Result<List<EleveDto>>>
@@ -20,14 +21,20 @@ public class GetAllElevesQueryHandler : IRequestHandler<GetAllElevesQuery, Resul
             .Include(e => e.Classe)
             .Include(e => e.Famille)
             .Include(e => e.Frais.Where(f => !f.IsArchived))
-            .Where(e => e.Statut == SchoolFlow.Domain.Entities.StatutEleve.Actif);
+            .Where(e => e.Statut == StatutEleve.Actif);
 
         if (request.ClasseId.HasValue)
             query = query.Where(e => e.ClasseId == request.ClasseId.Value);
 
         var eleves = await query
+            .OrderBy(e => e.Nom)
+            .ThenBy(e => e.Prenom)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+            var result = eleves
             .Select(e => new EleveDto(
                 e.Id,
                 e.Matricule,
@@ -38,8 +45,8 @@ public class GetAllElevesQueryHandler : IRequestHandler<GetAllElevesQuery, Resul
                 e.Frais.Sum(f => f.Montant - f.MontantPaye),
                 e.Statut.ToString()
             ))
-            .ToListAsync(ct);
+            .ToList();
 
-        return Result<List<EleveDto>>.Success(eleves);
+        return Result<List<EleveDto>>.Success(result);
     }
 }

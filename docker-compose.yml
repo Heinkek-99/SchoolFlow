@@ -1,0 +1,63 @@
+# ============================================
+# docker-compose.yml
+# ============================================
+version: '3.8'
+
+services:
+  # SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: schoolflow-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Azerty12
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - schoolflow-network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'SchoolFlow@2025!' -Q 'SELECT 1' || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # SchoolFlow API
+  api:
+    build:
+      context: .
+      dockerfile: src/SchoolFlow.API/Dockerfile
+    container_name: schoolflow-api
+    ports:
+      - "5000:80"
+      - "5001:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=SchoolFlowDb;User Id=sa;Password=SchoolFlow@2025!;TrustServerCertificate=true;MultipleActiveResultSets=true
+      - JwtSettings__SecretKey=SchoolFlow-Docker-Secret-Key-2025-PRODUCTION-256bits
+      - JwtSettings__Issuer=SchoolFlowAPI
+      - JwtSettings__Audience=SchoolFlowClients
+      - JwtSettings__ExpirationHours=8
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - schoolflow-network
+    volumes:
+      - api-logs:/app/logs
+      - api-photos:/app/wwwroot/photos
+      - api-documents:/app/wwwroot/documents
+    restart: unless-stopped
+
+networks:
+  schoolflow-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+  api-logs:
+  api-photos:
+  api-documents:

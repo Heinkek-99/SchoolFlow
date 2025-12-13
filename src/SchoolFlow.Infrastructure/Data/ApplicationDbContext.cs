@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SchoolFlow.Application.Common.Interfaces;
 using SchoolFlow.Domain.Entities;
 using System.Text.Json;
@@ -69,9 +70,14 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 .HasForeignKey(p => p.FamilleId)
                 .OnDelete(DeleteBehavior.Restrict);
             
+            entity.Ignore(f => f.NomFamille);
             entity.Ignore(f => f.TotalDu);
             entity.Ignore(f => f.TotalPaye);
             entity.Ignore(f => f.SoldeGlobal);
+            entity.Ignore(f => f.TauxRecouvrement);
+            entity.Ignore(f => f.JoursDepuisDernierPaiement);
+            entity.Ignore(f => f.DateDernierPaiement);
+            entity.Ignore(f => f.NombreEnfantsActifs);
             entity.Ignore(f => f.StatutPaiement);
             
             entity.HasQueryFilter(f => !f.IsArchived);
@@ -92,27 +98,34 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             
             entity.HasOne(e => e.Famille)
                 .WithMany(f => f.Eleves)
-                .HasForeignKey(e => e.FamilleId);
-                // .OnDelete(DeleteBehavior.Restrict); 
+                .HasForeignKey(e => e.FamilleId)
+                .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(e => e.Classe)
                 .WithMany(c => c.Eleves)
-                .HasForeignKey(e => e.ClasseId);
-                // .OnDelete(DeleteBehavior.Restrict); 
+                .HasForeignKey(e => e.ClasseId)
+                .OnDelete(DeleteBehavior.NoAction); 
 
             entity.HasOne(e => e.AnneeScolaire)
                 .WithMany(a => a.Eleves)
-                .HasForeignKey(e => e.AnneeScolaireId);
-                // .OnDelete(DeleteBehavior.Restrict); 
+                .HasForeignKey(e => e.AnneeScolaireId)
+                .OnDelete(DeleteBehavior.NoAction); 
 
             entity.HasMany(e => e.Frais)
                 .WithOne(f => f.Eleve)
                 .HasForeignKey(f => f.EleveId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            entity.Ignore(e => e.NomComplet);
+            entity.Ignore(e => e.Age);
             entity.Ignore(e => e.TotalDu);
             entity.Ignore(e => e.TotalPaye);
             entity.Ignore(e => e.Solde);
+            entity.Ignore(e => e.EstAJour);
+            entity.Ignore(e => e.PourcentagePaye);
+            entity.Ignore(e => e.NombreFraisImpayes);
+            entity.Ignore(e => e.FraisPlusAncienImpaye);
+            // entity.Ignore(e => e.MoyenneGenerale);
             
             entity.HasQueryFilter(e => !e.IsArchived);
         });
@@ -128,8 +141,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             
             entity.HasOne(c => c.AnneeScolaire)
                 .WithMany(a => a.Classes)
-                .HasForeignKey(c => c.AnneeScolaireId);
-                // .OnDelete(DeleteBehavior.Restrict); 
+                .HasForeignKey(c => c.AnneeScolaireId)
+                .OnDelete(DeleteBehavior.NoAction); 
             
             entity.Ignore(c => c.EffectifActuel);
             
@@ -140,9 +153,14 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<TypeFrais>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
-            entity.Property(e => e.Libelle).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.Categorie).HasConversion<string>();
+            entity.Property(e => e.Code)
+                .HasMaxLength(20)
+                .IsRequired();
+            entity.Property(e => e.Libelle)
+                .HasMaxLength(100)
+                .IsRequired();
+            entity.Property(e => e.Categorie)
+                .HasConversion<string>();
             
             // Sérialisation JSON pour Dictionary
             entity.Property(e => e.MontantsParNiveau)
@@ -151,8 +169,17 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                     v => JsonSerializer.Deserialize<Dictionary<Niveau, decimal>>(v, (JsonSerializerOptions?)null) 
                          ?? new Dictionary<Niveau, decimal>()
                 )
-                .HasColumnType("nvarchar(max)");
+                .Metadata.SetValueComparer(
+                    new ValueComparer<Dictionary<Niveau, decimal>>(
+                        (c1, c2) => c1!.SequenceEqual(c2!),  // Comparaison
+                        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),  // Hash
+                        c => c.ToDictionary(e => e.Key, e => e.Value)  // Snapshot
+            )
+        );
             
+            entity.Property(e => e.MontantsParNiveau)
+                .HasColumnType("nvarchar(max)");
+
             entity.HasQueryFilter(t => !t.IsArchived);
         });
 
@@ -165,13 +192,13 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             
             entity.HasOne(f => f.Eleve)
                 .WithMany(e => e.Frais)
-                .HasForeignKey(f => f.EleveId);
-                // .OnDelete(DeleteBehavior.Restrict); 
+                .HasForeignKey(f => f.EleveId)
+                .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(f => f.TypeFrais)
                 .WithMany(t => t.Frais)
-                .HasForeignKey(f => f.TypeFraisId);
-                // .OnDelete(DeleteBehavior.Restrict); 
+                .HasForeignKey(f => f.TypeFraisId)
+                .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(f => f.Periode)
                 .WithMany()
@@ -180,11 +207,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
             entity.HasMany(f => f.Ventilations)
                 .WithOne(v => v.Frais)
-                .HasForeignKey(v => v.FraisId);
-                // .OnDelete(DeleteBehavior.Restrict); 
+                .HasForeignKey(v => v.FraisId)
+                .OnDelete(DeleteBehavior.Restrict); 
             
             entity.Ignore(f => f.Solde);
+            entity.Ignore(f => f.EstSolde);
             entity.Ignore(f => f.IsEchu);
+            entity.Ignore(f => f.JoursRetard);
+            entity.Ignore(f => f.PourcentagePaye);
+            entity.Ignore(f => f.StatutPaiement);
             
             entity.HasQueryFilter(f => !f.IsArchived);
         });
@@ -201,8 +232,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             
             entity.HasOne(p => p.Famille)
                 .WithMany(f => f.Paiements)
-                .HasForeignKey(p => p.FamilleId);
-                // .OnDelete(DeleteBehavior.Restrict); 
+                .HasForeignKey(p => p.FamilleId)
+                .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(p => p.EnregistreParUtilisateur)
                 .WithMany()
@@ -211,7 +242,11 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
             entity.HasMany(p => p.Ventilations)
                 .WithOne(v => v.Paiement)
-                .HasForeignKey(v => v.PaiementId);
+                .HasForeignKey(v => v.PaiementId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Ignore(p => p.IsVentilationComplete);
+            entity.Ignore(p => p.NombreElevesBeneficiaires);
             
             entity.HasQueryFilter(p => !p.IsArchived);
         });
@@ -220,18 +255,35 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<VentilationPaiement>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.MontantVentile).HasPrecision(18, 2);
+            entity.Property(e => e.MontantVentile)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            entity.Property(e => e.Remarque)
+                .HasMaxLength(500);
             
             entity.HasOne(v => v.Paiement)
                 .WithMany(p => p.Ventilations)
                 .HasForeignKey(v => v.PaiementId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(v => v.Eleve)
+                .WithMany()
+                .HasForeignKey(v => v.EleveId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(v => v.Frais)
                 .WithMany(f => f.Ventilations)
                 .HasForeignKey(v => v.FraisId)
                 .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Index pour performance
+            entity.HasIndex(v => v.PaiementId);
+            entity.HasIndex(v => v.EleveId);
+            entity.HasIndex(v => v.FraisId);
+
+            entity.HasQueryFilter(v => !v.IsArchived);
         });
 
         // Configuration Note
@@ -246,7 +298,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 .WithMany(e => e.Notes)
                 .HasForeignKey(n => n.EleveId)
                 .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
 
 
             entity.HasOne(n => n.Matiere)
@@ -264,17 +316,29 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<AuditLog>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Action).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.EntityType).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.IpAddress).HasMaxLength(50);
-            entity.Property(e => e.OldValues).HasColumnType("nvarchar(max)");
-            entity.Property(e => e.NewValues).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.Action)
+                .HasMaxLength(100)
+                .IsRequired();
+            entity.Property(e => e.EntityType)
+                .HasMaxLength(100)
+                .IsRequired();
+            entity.Property(e => e.IpAddress)
+                .HasMaxLength(50);
+            entity.Property(e => e.OldValues)
+                .HasColumnType("nvarchar(max)");
+            entity.Property(e => e.NewValues)
+                .HasColumnType("nvarchar(max)");
             
             entity.HasOne(a => a.Utilisateur)
                 .WithMany(u => u.AuditLogs)
                 .HasForeignKey(a => a.UtilisateurId)
                 .IsRequired(false) 
                 .OnDelete(DeleteBehavior.SetNull);
+
+             // Index pour performance
+            entity.HasIndex(a => a.UtilisateurId);
+            entity.HasIndex(a => a.EntityType);
+            entity.HasIndex(a => a.CreatedAt);
         });
 
         ConfigureOtherEntities(modelBuilder);
@@ -315,15 +379,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         });
 
     }
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    // {
-    //     optionsBuilder.UseSqlServer(
-    //         "Server=localhost,1433;Database=SchoolFlowDb;User Id=sa;Password=Azerty12;",
-    //         options => options.EnableRetryOnFailure());
-    // }
-
-
-    private void SeedData(ModelBuilder modelBuilder)
+       private void SeedData(ModelBuilder modelBuilder)
     {
         // Année scolaire 2024-2025
         var anneeScolaireId = Guid.NewGuid();

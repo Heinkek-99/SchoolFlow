@@ -164,8 +164,7 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         name: "FK_Classes_AnneeScolaires_AnneeScolaireId",
                         column: x => x.AnneeScolaireId,
                         principalTable: "AnneeScolaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -202,7 +201,7 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UtilisateurId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UtilisateurId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Action = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     EntityType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     EntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -224,7 +223,7 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         column: x => x.UtilisateurId,
                         principalTable: "Utilisateurs",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -261,7 +260,7 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         column: x => x.EnregistrePar,
                         principalTable: "Utilisateurs",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -277,12 +276,13 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     Sexe = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhotoPath = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     FamilleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClasseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AnneeScolaireId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClasseId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AnneeScolaireId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Nationalite = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GroupeSanguin = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Allergies = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ContactUrgence = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Remarques = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Statut = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateInscription = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -299,14 +299,12 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         name: "FK_Eleves_AnneeScolaires_AnneeScolaireId",
                         column: x => x.AnneeScolaireId,
                         principalTable: "AnneeScolaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Eleves_Classes_ClasseId",
                         column: x => x.ClasseId,
                         principalTable: "Classes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Eleves_Familles_FamilleId",
                         column: x => x.FamilleId,
@@ -326,6 +324,7 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     Montant = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     MontantPaye = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     DateEcheance = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Remarques = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Commentaire = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -362,9 +361,9 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EleveId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MatiereId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PeriodeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EleveId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    MatiereId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PeriodeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Valeur = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
                     NoteSur = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -383,20 +382,19 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         name: "FK_Notes_Eleves_EleveId",
                         column: x => x.EleveId,
                         principalTable: "Eleves",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Notes_Matieres_MatiereId",
                         column: x => x.MatiereId,
                         principalTable: "Matieres",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Notes_Periodes_PeriodeId",
                         column: x => x.PeriodeId,
                         principalTable: "Periodes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -405,8 +403,10 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaiementId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EleveId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FraisId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MontantVentile = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Remarque = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsArchived = table.Column<bool>(type: "bit", nullable: false),
@@ -417,6 +417,12 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VentilationsPaiement", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VentilationsPaiement_Eleves_EleveId",
+                        column: x => x.EleveId,
+                        principalTable: "Eleves",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_VentilationsPaiement_Frais_FraisId",
                         column: x => x.FraisId,
@@ -434,40 +440,40 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
             migrationBuilder.InsertData(
                 table: "AnneeScolaires",
                 columns: new[] { "Id", "ArchiveReason", "ArchivedAt", "ArchivedBy", "CreatedAt", "DateDebut", "DateFin", "IsActive", "IsArchived", "Libelle", "UpdatedAt" },
-                values: new object[] { new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, new DateTime(2025, 12, 11, 14, 3, 7, 248, DateTimeKind.Utc).AddTicks(6736), new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), true, false, "2024-2025", null });
+                values: new object[] { new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, new DateTime(2025, 12, 13, 12, 52, 57, 970, DateTimeKind.Utc).AddTicks(6557), new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), true, false, "2024-2025", null });
 
             migrationBuilder.InsertData(
                 table: "TypeFrais",
                 columns: new[] { "Id", "ArchiveReason", "ArchivedAt", "ArchivedBy", "Categorie", "Code", "CreatedAt", "Description", "GenerationAutomatique", "IsArchived", "IsObligatoire", "IsRecurrent", "Libelle", "MontantsParNiveau", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("094e9e46-6cf0-4b0b-aca7-514fcf3d4897"), null, null, null, "Scolarite", "SCOL", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(1893), "Frais de scolarité trimestriel", true, false, true, true, "Scolarité", "{\"CP\":60000,\"CE1\":60000,\"CE2\":60000,\"CM1\":70000,\"CM2\":70000,\"Sixieme\":80000,\"Cinquieme\":80000,\"Quatrieme\":85000,\"Troisieme\":85000,\"Seconde\":90000,\"Premiere\":90000,\"Terminale\":90000}", null },
-                    { new Guid("8d78f55a-2937-48b0-9567-7b87b255a939"), null, null, null, "Inscription", "INSC", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(1884), null, true, false, true, false, "Frais d'inscription", "{\"CP\":5000,\"CE1\":5000,\"CE2\":5000,\"CM1\":5000,\"CM2\":5000,\"Sixieme\":5000,\"Cinquieme\":5000,\"Quatrieme\":5000,\"Troisieme\":5000,\"Seconde\":5000,\"Premiere\":5000,\"Terminale\":5000}", null },
-                    { new Guid("a5b21246-bd82-4c04-95d2-f3752f1801d1"), null, null, null, "Cantine", "CANT", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(1933), "Frais de cantine mensuel", false, false, false, true, "Cantine", "{\"CP\":15000,\"CE1\":15000,\"CE2\":15000,\"CM1\":15000,\"CM2\":15000,\"Sixieme\":15000,\"Cinquieme\":15000,\"Quatrieme\":15000,\"Troisieme\":15000,\"Seconde\":15000,\"Premiere\":15000,\"Terminale\":15000}", null }
+                    { new Guid("57ef8b55-d4db-41e3-a39c-fd1ff56c352e"), null, null, null, "Inscription", "INSC", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(2666), null, true, false, true, false, "Frais d'inscription", "{\"CP\":5000,\"CE1\":5000,\"CE2\":5000,\"CM1\":5000,\"CM2\":5000,\"Sixieme\":5000,\"Cinquieme\":5000,\"Quatrieme\":5000,\"Troisieme\":5000,\"Seconde\":5000,\"Premiere\":5000,\"Terminale\":5000}", null },
+                    { new Guid("695593e0-4c4a-40f6-8e74-d5a91efe8e59"), null, null, null, "Cantine", "CANT", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(2704), "Frais de cantine mensuel", false, false, false, true, "Cantine", "{\"CP\":15000,\"CE1\":15000,\"CE2\":15000,\"CM1\":15000,\"CM2\":15000,\"Sixieme\":15000,\"Cinquieme\":15000,\"Quatrieme\":15000,\"Troisieme\":15000,\"Seconde\":15000,\"Premiere\":15000,\"Terminale\":15000}", null },
+                    { new Guid("dd000a2c-c56e-4c71-84e5-1a695f89d8ef"), null, null, null, "Scolarite", "SCOL", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(2674), "Frais de scolarité trimestriel", true, false, true, true, "Scolarité", "{\"CP\":60000,\"CE1\":60000,\"CE2\":60000,\"CM1\":70000,\"CM2\":70000,\"Sixieme\":80000,\"Cinquieme\":80000,\"Quatrieme\":85000,\"Troisieme\":85000,\"Seconde\":90000,\"Premiere\":90000,\"Terminale\":90000}", null }
                 });
 
             migrationBuilder.InsertData(
                 table: "Utilisateurs",
                 columns: new[] { "Id", "ArchiveReason", "ArchivedAt", "ArchivedBy", "CreatedAt", "Email", "FailedLoginAttempts", "IsActive", "IsArchived", "LastLoginAt", "LockedUntil", "Nom", "PasswordHash", "Prenom", "Role", "Telephone", "UpdatedAt", "Username" },
-                values: new object[] { new Guid("f0adb616-893b-4767-89d5-a3cbaa6b29f7"), null, null, null, new DateTime(2025, 12, 11, 14, 3, 8, 415, DateTimeKind.Utc).AddTicks(8839), "admin@schoolflow.com", 0, true, false, null, null, "Administrateur", "$2a$11$3y2kbFt4EdZZWxvCq1C4muosp5Juf1IasLotnXxSTvQB4IpUhteEi", "Système", "Admin", null, null, "admin" });
+                values: new object[] { new Guid("66286bbb-80f5-4d8c-9c37-90ad5e4add58"), null, null, null, new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(851), "admin@schoolflow.com", 0, true, false, null, null, "Administrateur", "$2a$11$OhEpXgHAUpu8aL651/vc2uMR70tJ49Vdwy5o3CtaIZVzYsLQw0BX6", "Système", "Admin", null, null, "admin" });
 
             migrationBuilder.InsertData(
                 table: "Classes",
                 columns: new[] { "Id", "AnneeScolaireId", "ArchiveReason", "ArchivedAt", "ArchivedBy", "CapaciteMax", "Code", "CreatedAt", "IsArchived", "Niveau", "Nom", "Section", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("144ada19-4991-4261-b0c1-045bce67fc1f"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "QUATRIEME", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(246), false, "Quatrieme", "4ème", null, null },
-                    { new Guid("1ac9af0f-b51d-4dd8-b530-899e554308b1"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "PREMIERE", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(282), false, "Premiere", "1ère", null, null },
-                    { new Guid("3adfa213-1689-4ab0-97a0-b30bc4c52c73"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "CM2", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(174), false, "CM2", "CM2", null, null },
-                    { new Guid("3f435c70-859f-4585-8d9f-1fe91263b745"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "SECONDE", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(267), false, "Seconde", "2nde", null, null },
-                    { new Guid("5f18d29b-689e-47fa-9836-ff3b34eea14f"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "SIXIEME", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(208), false, "Sixieme", "6ème", null, null },
-                    { new Guid("84dad474-0c3f-4c18-ba6d-9a708935e49b"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "TROISIEME", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(256), false, "Troisieme", "3ème", null, null },
-                    { new Guid("89695367-a589-4783-8e92-7d994f9024cc"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "CP", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(79), false, "CP", "CP", null, null },
-                    { new Guid("8c1df256-b401-4bc6-8c7a-c1b74e02c618"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "CE1", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(110), false, "CE1", "CE1", null, null },
-                    { new Guid("92eaeb5a-c83b-4187-a830-75a247b1353b"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "CE2", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(147), false, "CE2", "CE2", null, null },
-                    { new Guid("cce44d79-8b86-46e4-acc4-373c941c57f7"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "CINQUIEME", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(234), false, "Cinquieme", "5ème", null, null },
-                    { new Guid("eaadf8f5-998a-4105-a20a-a169ce9e83ff"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "TERMINALE", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(291), false, "Terminale", "Tle", null, null },
-                    { new Guid("f6d13458-6e2c-4790-bc01-b293d5a33975"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, 40, "CM1", new DateTime(2025, 12, 11, 14, 3, 8, 416, DateTimeKind.Utc).AddTicks(161), false, "CM1", "CM1", null, null }
+                    { new Guid("2b8b027a-1403-452f-8d06-cd5a8153e6c6"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "SECONDE", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1582), false, "Seconde", "2nde", null, null },
+                    { new Guid("305e30af-0ef0-444e-a838-8494c47c8b6d"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "TROISIEME", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1572), false, "Troisieme", "3ème", null, null },
+                    { new Guid("317e4e9a-c770-4952-b1b0-41f91b7a238e"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "SIXIEME", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1541), false, "Sixieme", "6ème", null, null },
+                    { new Guid("42d64f75-87c2-4615-a7c2-65275d7e44e7"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "CP", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1469), false, "CP", "CP", null, null },
+                    { new Guid("4802de8b-21eb-41b3-bcb4-37ab9fc44202"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "TERMINALE", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1598), false, "Terminale", "Tle", null, null },
+                    { new Guid("6dd99839-44f9-4aa1-ac86-6dec3cc13b3c"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "CM2", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1514), false, "CM2", "CM2", null, null },
+                    { new Guid("6face265-1a86-431a-9601-26444337c9e3"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "QUATRIEME", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1559), false, "Quatrieme", "4ème", null, null },
+                    { new Guid("a7392b97-4936-4638-bdb8-cfd2e1cec023"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "CE1", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1484), false, "CE1", "CE1", null, null },
+                    { new Guid("da1c1064-817c-462c-9333-b93c91899fd5"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "CINQUIEME", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1551), false, "Cinquieme", "5ème", null, null },
+                    { new Guid("e6bff78a-f187-4a36-b396-4dd0a494fad7"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "CE2", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1491), false, "CE2", "CE2", null, null },
+                    { new Guid("ec09d9bf-6171-4ace-820a-c448128867f5"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "PREMIERE", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1590), false, "Premiere", "1ère", null, null },
+                    { new Guid("f1693005-f6c1-4be7-a7ab-29d9fbda78c3"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, 40, "CM1", new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1499), false, "CM1", "CM1", null, null }
                 });
 
             migrationBuilder.InsertData(
@@ -475,10 +481,20 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 columns: new[] { "Id", "AnneeScolaireId", "ArchiveReason", "ArchivedAt", "ArchivedBy", "CreatedAt", "DateDebut", "DateFin", "IsArchived", "Libelle", "Numero", "Type", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("2e8bf0fe-2652-41a6-9c4d-1665d8a752e0"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, new DateTime(2025, 12, 11, 14, 3, 7, 248, DateTimeKind.Utc).AddTicks(7591), new DateTime(2025, 1, 7, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 3, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Trimestre 2", 2, "Trimestre", null },
-                    { new Guid("d98967b9-d30e-421d-bc11-c24936347e6b"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, new DateTime(2025, 12, 11, 14, 3, 7, 248, DateTimeKind.Utc).AddTicks(7596), new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Trimestre 3", 3, "Trimestre", null },
-                    { new Guid("eaa9ca46-5eca-485f-964c-bc36a3a1b51c"), new Guid("b659f064-efea-4080-b440-64f46624034d"), null, null, null, new DateTime(2025, 12, 11, 14, 3, 7, 248, DateTimeKind.Utc).AddTicks(7561), new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 12, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Trimestre 1", 1, "Trimestre", null }
+                    { new Guid("3107b0b2-d7b8-4506-83ff-0232d9fbe48d"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, new DateTime(2025, 12, 13, 12, 52, 57, 970, DateTimeKind.Utc).AddTicks(7309), new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Trimestre 3", 3, "Trimestre", null },
+                    { new Guid("c992c3f4-d47b-4896-b449-e9c53cc4ef64"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, new DateTime(2025, 12, 13, 12, 52, 57, 970, DateTimeKind.Utc).AddTicks(7303), new DateTime(2025, 1, 7, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 3, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Trimestre 2", 2, "Trimestre", null },
+                    { new Guid("e241bf85-dcf2-4f87-9f23-3e2dc478690b"), new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"), null, null, null, new DateTime(2025, 12, 13, 12, 52, 57, 970, DateTimeKind.Utc).AddTicks(7290), new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2024, 12, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Trimestre 1", 1, "Trimestre", null }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_CreatedAt",
+                table: "AuditLogs",
+                column: "CreatedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuditLogs_EntityType",
+                table: "AuditLogs",
+                column: "EntityType");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuditLogs_UtilisateurId",
@@ -567,6 +583,11 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 table: "Utilisateurs",
                 column: "Username",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VentilationsPaiement_EleveId",
+                table: "VentilationsPaiement",
+                column: "EleveId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VentilationsPaiement_FraisId",

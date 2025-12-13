@@ -2,9 +2,9 @@ namespace SchoolFlow.Domain.Entities;
 
 public class Note : BaseEntity
 {
-    public Guid EleveId { get; set; }
-    public Guid MatiereId { get; set; }
-    public Guid PeriodeId { get; set; }
+    public Guid? EleveId { get; set; }
+    public Guid? MatiereId { get; set; }
+    public Guid? PeriodeId { get; set; }
     
     public decimal Valeur { get; set; }
     public decimal NoteSur { get; set; } = 20;
@@ -12,7 +12,7 @@ public class Note : BaseEntity
     public string? Commentaire { get; set; }
     
     // Navigation
-    public Eleve Eleve { get; set; } = null!;
+    public Eleve? Eleve { get; set; } = null!;
     public Matiere Matiere { get; set; } = null!;
     public Periode Periode { get; set; } = null!;
 }

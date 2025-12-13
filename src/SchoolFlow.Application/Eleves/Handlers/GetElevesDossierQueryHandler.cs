@@ -5,7 +5,7 @@ using SchoolFlow.Application.Common.Models;
 using SchoolFlow.Application.Eleves.Queries;
 using SchoolFlow.Shared.Dtos;
 
-public class GetEleveDossierQueryHandler : IRequestHandler<GetEleveDossierQuery, Result<EleveDossierDto>>
+public class GetEleveDossierQueryHandler : IRequestHandler<GetElevesDossierQuery, Result<EleveDossierDto>>
 {
     private readonly IApplicationDbContext _context;
 
@@ -14,27 +14,36 @@ public class GetEleveDossierQueryHandler : IRequestHandler<GetEleveDossierQuery,
         _context = context;
     }
 
-    public async Task<Result<EleveDossierDto>> Handle(GetEleveDossierQuery request, CancellationToken ct)
+    public async Task<Result<EleveDossierDto>> Handle(GetElevesDossierQuery request, CancellationToken ct)
     {
         var eleve = await _context.Eleves
             .Include(e => e.Classe)
             .Include(e => e.Famille)
             .Include(e => e.Frais.Where(f => !f.IsArchived))
                 .ThenInclude(f => f.TypeFrais)
+            .Include(e => e.Frais.Where(f => !f.IsArchived))
+                .ThenInclude(f => f.Periode)
+            .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == request.Id, ct);
 
         if (eleve == null)
             return Result<EleveDossierDto>.Failure("Élève introuvable");
 
-        var fraisList = eleve.Frais.Select(f => new FraisDto(
-            f.Id,
-            f.TypeFrais.Libelle,
-            f.Montant,
-            f.MontantPaye,
-            f.DateEcheance,
-            DateTime.UtcNow > f.DateEcheance && f.Montant > f.MontantPaye
+        var fraisList = eleve.Frais
+            .OrderBy(f => f.DateEcheance)
+            .Select(f => new FraisDto(
+                f.Id,
+                f.TypeFrais.Libelle,
+                f.Montant,
+                f.MontantPaye,
+                f.DateEcheance,
+                DateTime.UtcNow > f.DateEcheance && f.Montant > f.MontantPaye,
+                f.Periode?.Libelle
         )).ToList();
 
+        var totalDu = eleve.Frais.Sum(f => f.Montant);
+        var totalPaye =  eleve.Frais.Sum(f => f.MontantPaye);
+        var totalRestant = totalDu - totalPaye;
         var dto = new EleveDossierDto(
             eleve.Id,
             eleve.Matricule,
@@ -47,9 +56,9 @@ public class GetEleveDossierQueryHandler : IRequestHandler<GetEleveDossierQuery,
             eleve.Classe.Nom,
             $"{eleve.Famille.NomPere} {eleve.Famille.PrenomPere}",
             fraisList,
-            eleve.Frais.Sum(f => f.Montant),
-            eleve.Frais.Sum(f => f.MontantPaye),
-            eleve.Frais.Sum(f => f.Montant - f.MontantPaye)
+            totalDu,
+            totalPaye,
+            totalRestant
         );
 
         return Result<EleveDossierDto>.Success(dto);

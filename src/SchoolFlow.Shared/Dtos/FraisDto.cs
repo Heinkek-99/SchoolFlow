@@ -6,5 +6,6 @@ public record FraisDto(
     decimal Montant, 
     decimal MontantPaye, 
     DateTime Echeance, 
-    bool IsEchu)
-;
+    bool IsEchu,
+    string? Periode
+);
