@@ -162,7 +162,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // ============================================
 // 6. HEALTHCHECKS
-// ============================================
+// ============================================ 
 builder.Services.AddHealthChecks()
     // .AddDbContextCheck<ApplicationDbContext>("Database");
      .AddCheck("Database", () =>
