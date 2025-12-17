@@ -6,4 +6,4 @@ namespace SchoolFlow.Application.Dashboard.Queries;
 public record GetStatsFinancieresQuery(
     DateTime? DateDebut = null,
     DateTime? DateFin = null
-) : IRequest<Result<StatsFinancieresDetailDto>>;
+) : IRequest<Result<StatsFinancieresDto>>;

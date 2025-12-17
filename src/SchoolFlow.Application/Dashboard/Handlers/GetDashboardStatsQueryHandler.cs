@@ -1,13 +1,15 @@
+using System.Linq;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SchoolFlow.Application.Common.Interfaces;
 using SchoolFlow.Application.Common.Models;
 using SchoolFlow.Application.Dashboard.Queries;
+using SchoolFlow.Domain.Entities;
 using SchoolFlow.Shared.Dtos;
 
 namespace SchoolFlow.Application.Dashboard.Handlers;
 
-public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQuery, Result<DashboardStats>>
+public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQuery, Result<DashboardStatsDto>>
 {
     private readonly IApplicationDbContext _context;
 
@@ -16,16 +18,29 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
         _context = context;
     }
 
-    public async Task<Result<DashboardStats>> Handle(GetDashboardStatsQuery request, CancellationToken ct)
+    public async Task<Result<DashboardStatsDto>> Handle(GetDashboardStatsQuery request, CancellationToken ct)
     {
         // 1. Stats de base
-        var nombreElevesActifs = await _context.Eleves
-            .Where(e => !e.IsArchived && e.Statut == Domain.Entities.StatutEleve.Actif)
+        var totalEleves = await _context.Eleves
+            .Where(e => !e.IsArchived && e.Statut == StatutEleve.Actif)
             .CountAsync(ct);
 
-        var nombreFamilles = await _context.Familles
+        var totalFamilles = await _context.Familles
             .Where(f => !f.IsArchived)
             .CountAsync(ct);
+
+         var totalFraisAttendus = await _context.Frais
+            .Where(f => !f.IsArchived)
+            .SumAsync(f => f.Montant, ct);
+
+        var totalEncaisse = await _context.Frais
+            .Where(f => !f.IsArchived)
+            .SumAsync(f => f.MontantPaye, ct);
+
+        var soldeGlobal = totalFraisAttendus - totalEncaisse;
+        var tauxRecouvrement = totalFraisAttendus > 0
+            ? Math.Round(totalEncaisse / totalFraisAttendus * 100, 2)
+            : 0;
 
         // 2. Stats financières
         var statsFinancieres = await CalculerStatsFinancieres(ct);
@@ -34,33 +49,59 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
         var alertes = await GenererAlertes(ct);
 
         // 4. Répartition par classe
-        var repartitionClasses = await _context.Classes
+        var classesData = await _context.Classes
             .Where(c => !c.IsArchived)
-            .Select(c => new StatistiqueClasseDto(
+            .Select(c => new
+            {
                 c.Nom,
-                c.Eleves.Count(e => !e.IsArchived && e.Statut == Domain.Entities.StatutEleve.Actif),
-                c.Eleves.Any() && c.Eleves.Sum(e => e.Frais.Sum(f => f.Montant)) > 0
-                    ? Math.Round((c.Eleves.Sum(e => e.Frais.Sum(f => f.MontantPaye)) / 
-                                 c.Eleves.Sum(e => e.Frais.Sum(f => f.Montant))) * 100, 2)
-                    : 0
-            ))
-            .OrderBy(s => s.NomClasse)
+                // Charger les élèves avec leurs frais
+                Eleves = c.Eleves
+                    .Where(e => !e.IsArchived && e.Statut == StatutEleve.Actif)
+                    .Select(e => new
+                    {
+                        TotalFrais = e.Frais.Where(f => !f.IsArchived).Sum(f => f.Montant),
+                        TotalPaye = e.Frais.Where(f => !f.IsArchived).Sum(f => f.MontantPaye)
+                    })
+                    .ToList()
+            })
             .ToListAsync(ct);
+            
+        //Calcil coté client pour eviter les problemes de traduction de requete Linq to SQL
+        var statistiquesParClasses = classesData
+            .Select(c =>
+            {
+                // Calculs intermédiaires
+                var totalFraisClasse = c.Eleves.Sum(e => e.TotalFrais);
+                var totalPayeClasse = c.Eleves.Sum(e => e.TotalPaye);
+                var tauxRecouvrementClasse = totalFraisClasse > 0
+                    ? Math.Round((totalPayeClasse / totalFraisClasse) * 100, 2)
+                    : 0;
+
+                return new StatistiqueClasseDto(
+                    NomClasse: c.Nom,
+                    NombreEleves: c.Eleves.Count,
+                    TauxRecouvrement: tauxRecouvrementClasse
+                );
+            })
+            .OrderBy(s => s.NomClasse)
+            .ToList();
+
 
         // 5. Graphique évolution encaissements (6 derniers mois)
         var evolutionEncaissements = await GenererGraphiqueEvolution(ct);
 
         // 6. Construire le DTO avec le nouveau format
-        var dashboard = new DashboardStats(
-            NombreElevesActifs: nombreElevesActifs,
-            NombreFamilles: nombreFamilles,
-            Finances: statsFinancieres,
-            Alertes: alertes,
-            RepartitionClasses: repartitionClasses,
-            EvolutionEncaissements: evolutionEncaissements
+        var stats = new DashboardStatsDto(
+            totalEleves,
+            totalFamilles,
+            totalFraisAttendus,
+            totalEncaisse,
+            soldeGlobal,
+            tauxRecouvrement,
+            statistiquesParClasses
         );
 
-        return Result<DashboardStats>.Success(dashboard);
+        return Result<DashboardStatsDto>.Success(stats);
     }
 
     private async Task<StatistiquesFinancieres> CalculerStatsFinancieres(CancellationToken ct)
@@ -91,7 +132,7 @@ public class GetDashboardStatsQueryHandler : IRequestHandler<GetDashboardStatsQu
             TotalEncaisse: totalEncaisse,
             SoldeRestant: soldeRestant,
             TauxRecouvrement: tauxRecouvrement,
-            NombreFamillesImpayes: famillesImpayes,
+            TotalFamillesImpayes: famillesImpayes,
             MontantMoyenImpaye: montantMoyenImpaye
         );
     }

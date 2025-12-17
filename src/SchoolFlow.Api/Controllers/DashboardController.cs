@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolFlow.Application.Dashboard.Queries;
@@ -11,18 +12,19 @@ namespace SchoolFlow.API.Controllers;
 [Authorize]
 public class DashboardController : BaseApiController
 {
+
     /// <summary>
     /// Obtenir les statistiques principales
     /// </summary>
     [HttpGet("stats")]
-    [ProducesResponseType(typeof(DashboardStats), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(DashboardStatsDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetStats()
     {
         var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? Guid.Empty.ToString());
         var role = User.FindFirst("role")?.Value ?? "Secretaire";
         
         var result = await Mediator.Send(new GetDashboardStatsQuery(userId, role));
-        return Ok(result.Data);
+        return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Error);
     }
 
     /// <summary>
@@ -30,10 +32,27 @@ public class DashboardController : BaseApiController
     /// </summary>
     [HttpGet("impayes")]
     [Authorize(Policy = "ComptableAccess")]
-    public async Task<IActionResult> GetImpayes()
+    [ProducesResponseType(typeof(List<FamilleImpayeDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetImpayes(
+        [FromQuery] int? limite = null,
+        [FromQuery] int? joursRetardMin = null)
     {
-        var result = await Mediator.Send(new GetFamillesImpayesQuery());
-        return Ok(result.Data);
+        var query = new GetFamillesImpayesQuery(limite, joursRetardMin);
+        var result = await Mediator.Send(query);
+        return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Error);
+    }
+
+     /// <summary>
+    /// Récupère le top 10 des familles les plus endettées
+    /// </summary>
+    [HttpGet("top-impayes")]
+    [Authorize(Policy = "ComptableAccess")]
+    [ProducesResponseType(typeof(List<FamilleImpayeDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTopImpayes()
+    {
+        var query = new GetFamillesImpayesQuery(LimiteResultats: 10);
+        var result = await Mediator.Send(query);
+        return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Error);
     }
 
     /// <summary>

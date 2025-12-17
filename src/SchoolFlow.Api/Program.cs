@@ -44,6 +44,25 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // ============================================
+// 2.1 CONFIGURATION DU DbContext
+// ============================================
+// Chaîne de connexion définie dans votre configuration
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Activer le Split Query pour éviter les warnings
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(
+        connectionString,
+        sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(3);
+            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        });
+});
+
+
+// ============================================
 // 3. AUTHENTICATION JWT
 // ============================================
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
