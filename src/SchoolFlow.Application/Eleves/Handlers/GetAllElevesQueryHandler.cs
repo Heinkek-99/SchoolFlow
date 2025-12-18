@@ -40,7 +40,7 @@ public class GetAllElevesQueryHandler : IRequestHandler<GetAllElevesQuery, Resul
                 e.Matricule,
                 e.Nom,
                 e.Prenom,
-                e.Classe.Nom,
+                e.Classe?.Nom,
                 $"{e.Famille.NomPere} {e.Famille.PrenomPere}",
                 e.Frais.Sum(f => f.Montant - f.MontantPaye),
                 e.Statut.ToString()

@@ -53,7 +53,7 @@ public class GetEleveDossierQueryHandler : IRequestHandler<GetElevesDossierQuery
             eleve.LieuNaissance,
             eleve.Sexe.ToString(),
             eleve.PhotoPath,
-            eleve.Classe.Nom,
+            eleve.Classe?.Nom,
             $"{eleve.Famille.NomPere} {eleve.Famille.PrenomPere}",
             fraisList,
             totalDu,

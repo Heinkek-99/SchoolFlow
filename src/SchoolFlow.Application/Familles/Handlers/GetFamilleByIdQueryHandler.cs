@@ -35,7 +35,7 @@ public class GetFamilleByIdQueryHandler : IRequestHandler<GetFamilleByIdQuery, R
                 e.Nom,
                 e.Prenom,
                 e.Matricule,
-                e.Classe.Nom,
+                e.Classe?.Nom,
                 e.Frais.Sum(f => f.Montant - f.MontantPaye)
             ))
             .ToList();
