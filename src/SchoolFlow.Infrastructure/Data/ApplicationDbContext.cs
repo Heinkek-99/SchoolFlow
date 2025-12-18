@@ -436,18 +436,60 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
         // Utilisateur Admin par défaut
         var adminId = Guid.NewGuid();
-        modelBuilder.Entity<Utilisateur>().HasData(new Utilisateur
-        {
-            Id = adminId,
-            Username = "admin",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@2025"),
-            Nom = "Administrateur",
-            Prenom = "Système",
-            Email = "admin@schoolflow.com",
-            Role = Role.Admin,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        });
+        var directorId = Guid.NewGuid();
+        var accountantId = Guid.NewGuid();
+        var secretaryId = Guid.NewGuid();
+
+        modelBuilder.Entity<Utilisateur>().HasData(
+            new Utilisateur
+            {
+                Id = adminId,
+                Username = "admin",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@2025"),
+                Nom = "Administrateur",
+                Prenom = "Système",
+                Email = "admin@schoolflow.com",
+                Role = Role.Admin,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new Utilisateur
+            {
+                Id = directorId,
+                Username = "directeur",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Dir@2025"),
+                Nom = "Durand",
+                Prenom = "Marie",
+                Email = "directeur@schoolflow.com",
+                Role = Role.Directeur,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new Utilisateur
+            {
+                Id = accountantId,
+                Username = "comptable",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Compta@2025"),
+                Nom = "Martin",
+                Prenom = "Sophie",
+                Email = "comptable@schoolflow.com",
+                Role = Role.Comptable,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new Utilisateur
+            {
+                Id = secretaryId,
+                Username = "secretaire",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Sec@2025"),
+                Nom = "Leroy",
+                Prenom = "Paul",
+                Email = "secretaire@schoolflow.com",
+                Role = Role.Secretaire,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            }
+        );
 
         // Classes standards
         var classes = new List<Classe>();
@@ -461,7 +503,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 Code = niveau.ToString().ToUpper(),
                 Nom = GetNiveauLibelle(niveau),
                 Niveau = niveau,
-                CapaciteMax = 40,
+                CapaciteMax = 60,
                 AnneeScolaireId = anneeScolaireId,
                 CreatedAt = DateTime.UtcNow
             });

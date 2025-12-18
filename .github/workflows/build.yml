@@ -14,7 +14,9 @@ on:
 env:
   DOTNET_VERSION: '8.0.x'
   SOLUTION_PATH: 'SchoolFlow.sln'
-  API_PROJECT_PATH: 'src/SchoolFlow.API/SchoolFlow.API.csproj'
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  API_PROJECT_PATH: 'src/SchoolFlow.Api/SchoolFlow.Api.csproj'
   INFRASTRUCTURE_PROJECT_PATH: 'src/SchoolFlow.Infrastructure/SchoolFlow.Infrastructure.csproj'
 
 jobs:
@@ -51,7 +53,7 @@ jobs:
         files: ./coverage/**/coverage.cobertura.xml
         flags: unittests
         name: codecov-umbrella
-        fail_ci_if_error: false
+        fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }}
 
     

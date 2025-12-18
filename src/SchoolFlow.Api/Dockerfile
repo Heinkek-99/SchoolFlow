@@ -7,26 +7,39 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore
-COPY ["src/SchoolFlow.API/SchoolFlow.API.csproj", "SchoolFlow.API/"]
+COPY ["src/SchoolFlow.Api/SchoolFlow.Api.csproj", "SchoolFlow.Api/"]
 COPY ["src/SchoolFlow.Application/SchoolFlow.Application.csproj", "SchoolFlow.Application/"]
 COPY ["src/SchoolFlow.Infrastructure/SchoolFlow.Infrastructure.csproj", "SchoolFlow.Infrastructure/"]
 COPY ["src/SchoolFlow.Domain/SchoolFlow.Domain.csproj", "SchoolFlow.Domain/"]
 
-RUN dotnet restore "SchoolFlow.API/SchoolFlow.API.csproj"
+RUN dotnet restore "SchoolFlow.Api/SchoolFlow.Api.csproj"
 
 # Copy everything else and build
 COPY src/ .
-WORKDIR "/src/SchoolFlow.API"
-RUN dotnet build "SchoolFlow.API.csproj" -c Release -o /app/build
+WORKDIR "/src/SchoolFlow.Api"
+RUN dotnet build "SchoolFlow.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "SchoolFlow.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "SchoolFlow.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
+
+# Installer curl pour healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copy published files
 COPY --from=publish /app/publish .
 
 # Create directories for logs and uploads
 RUN mkdir -p /app/logs /app/wwwroot/photos /app/wwwroot/documents
 
-ENTRYPOINT ["dotnet", "SchoolFlow.API.dll"]
+# Exposer les ports
+EXPOSE 8080 8081
+
+# Variables d'environnement par défaut
+ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Set the entry point
+ENTRYPOINT ["dotnet", "SchoolFlow.Api.dll"]

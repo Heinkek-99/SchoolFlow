@@ -1,15 +1,14 @@
 ﻿# ============================================
 # Setup-Database.ps1
 # Script PowerShell pour créer et configurer la base de données SchoolFlow
-# Version sans emojis pour compatibilité Windows
 # ============================================
 
 param(
     [string]$ServerInstance = "localhost",
     [string]$DatabaseName = "SchoolFlowDb",
     [string]$SqlUser = "sa",
-    [string]$SqlPassword = "Azerty12",
-    [string]$SqlPort = "1433",
+    [string]$SqlPassword = "SchoolFlow@2025&Strong",
+    [string]$SqlPort = "11433",
     [switch]$Reset,
     [switch]$SeedOnly
 )
@@ -163,7 +162,7 @@ if (-not (Test-Path $migrationsFolder)) {
 Write-Host "[ACTION] Application des migrations a la base de donnees..." -ForegroundColor Yellow
 
 # Définir la connection string avec TrustServerCertificate=true
-$env:ConnectionStrings__DefaultConnection = "Server=$ServerInstance,$SqlPort;Database=$DatabaseName;User Id=$SqlUser;Password=$SqlPassword;TrustServerCertificate=True;MultipleActiveResultSets=True;Encrypt=True"
+$env:ConnectionStrings__DefaultConnection = "Server=$ServerInstance,$SqlPort;Database=$DatabaseName;User Id=$SqlUser;Password=$SqlPassword;TrustServerCertificate=True;MultipleActiveResultSets=True;Encrypt=False"
 
 dotnet ef database update `
     --project $infrastructureProject `
@@ -244,7 +243,7 @@ Write-Host "  [WARNING] CHANGEZ CE MOT DE PASSE EN PRODUCTION !" -ForegroundColo
 Write-Host "============================================" -ForegroundColor Cyan
 
 # Générer le connection string
-$connectionString = "Server=$ServerInstance,$SqlPort;Database=$DatabaseName;User Id=$SqlUser;Password=$SqlPassword;TrustServerCertificate=True;MultipleActiveResultSets=True;Encrypt=True"
+$connectionString = "Server=$ServerInstance,$SqlPort;Database=$DatabaseName;User Id=$SqlUser;Password=$SqlPassword;TrustServerCertificate=True;MultipleActiveResultSets=True;Encrypt=False"
 
 Write-Host ""
 Write-Host "[INFO] Connection String:" -ForegroundColor Cyan

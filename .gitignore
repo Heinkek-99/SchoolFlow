@@ -55,3 +55,6 @@ logs/
 # Photos/uploads
 **/wwwroot/uploads/
 **/Photos/
+
+# GitHub Actions
+**/act.exe

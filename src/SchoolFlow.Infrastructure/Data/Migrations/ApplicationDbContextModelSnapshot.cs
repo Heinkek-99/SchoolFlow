@@ -67,8 +67,8 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 57, 970, DateTimeKind.Utc).AddTicks(6557),
+                            Id = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 29, 925, DateTimeKind.Utc).AddTicks(1765),
                             DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateFin = new DateTime(2025, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
@@ -196,132 +196,132 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("42d64f75-87c2-4615-a7c2-65275d7e44e7"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("396f3e27-e879-4e77-ac5a-d82eaeb2c47f"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "CP",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1469),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8070),
                             IsArchived = false,
                             Niveau = "CP",
                             Nom = "CP"
                         },
                         new
                         {
-                            Id = new Guid("a7392b97-4936-4638-bdb8-cfd2e1cec023"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("44de80f0-81bd-4a04-aecd-1d4fb23a6480"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "CE1",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1484),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8100),
                             IsArchived = false,
                             Niveau = "CE1",
                             Nom = "CE1"
                         },
                         new
                         {
-                            Id = new Guid("e6bff78a-f187-4a36-b396-4dd0a494fad7"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("a1597343-e4dd-4f34-ae06-9fc18980ce2d"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "CE2",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1491),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8112),
                             IsArchived = false,
                             Niveau = "CE2",
                             Nom = "CE2"
                         },
                         new
                         {
-                            Id = new Guid("f1693005-f6c1-4be7-a7ab-29d9fbda78c3"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("6b343a4e-da14-469d-8318-6bc9e1974648"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "CM1",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1499),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8158),
                             IsArchived = false,
                             Niveau = "CM1",
                             Nom = "CM1"
                         },
                         new
                         {
-                            Id = new Guid("6dd99839-44f9-4aa1-ac86-6dec3cc13b3c"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("434526d5-d24c-47b5-825a-77f1ac49b80c"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "CM2",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1514),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8175),
                             IsArchived = false,
                             Niveau = "CM2",
                             Nom = "CM2"
                         },
                         new
                         {
-                            Id = new Guid("317e4e9a-c770-4952-b1b0-41f91b7a238e"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("3fb775e4-dbe3-4bee-a7bd-2cbf6690dc5f"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "SIXIEME",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1541),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8231),
                             IsArchived = false,
                             Niveau = "Sixieme",
                             Nom = "6ème"
                         },
                         new
                         {
-                            Id = new Guid("da1c1064-817c-462c-9333-b93c91899fd5"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("22234eb4-a686-4e41-b90f-f479ffafbd53"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "CINQUIEME",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1551),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8293),
                             IsArchived = false,
                             Niveau = "Cinquieme",
                             Nom = "5ème"
                         },
                         new
                         {
-                            Id = new Guid("6face265-1a86-431a-9601-26444337c9e3"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("7839b468-6cf3-419d-b6a9-30ac09127f96"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "QUATRIEME",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1559),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8316),
                             IsArchived = false,
                             Niveau = "Quatrieme",
                             Nom = "4ème"
                         },
                         new
                         {
-                            Id = new Guid("305e30af-0ef0-444e-a838-8494c47c8b6d"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("ccdc6543-ca4d-4d41-9139-2105bc5ab7bb"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "TROISIEME",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1572),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8327),
                             IsArchived = false,
                             Niveau = "Troisieme",
                             Nom = "3ème"
                         },
                         new
                         {
-                            Id = new Guid("2b8b027a-1403-452f-8d06-cd5a8153e6c6"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("3468793f-ea19-4058-bf64-431d8ec0bb0d"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "SECONDE",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1582),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8342),
                             IsArchived = false,
                             Niveau = "Seconde",
                             Nom = "2nde"
                         },
                         new
                         {
-                            Id = new Guid("ec09d9bf-6171-4ace-820a-c448128867f5"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("a098cf9c-5c90-4faa-b715-5c4805eeb8fc"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "PREMIERE",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1590),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8355),
                             IsArchived = false,
                             Niveau = "Premiere",
                             Nom = "1ère"
                         },
                         new
                         {
-                            Id = new Guid("4802de8b-21eb-41b3-bcb4-37ab9fc44202"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CapaciteMax = 40,
+                            Id = new Guid("c73fd978-80b0-4f0f-91c2-66c0ab2315be"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CapaciteMax = 60,
                             Code = "TERMINALE",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(1598),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(8371),
                             IsArchived = false,
                             Niveau = "Terminale",
                             Nom = "Tle"
@@ -796,9 +796,9 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e241bf85-dcf2-4f87-9f23-3e2dc478690b"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 57, 970, DateTimeKind.Utc).AddTicks(7290),
+                            Id = new Guid("e35c96b7-f8f8-4845-80c7-393e6582eedb"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 29, 925, DateTimeKind.Utc).AddTicks(2495),
                             DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateFin = new DateTime(2024, 12, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsArchived = false,
@@ -808,9 +808,9 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c992c3f4-d47b-4896-b449-e9c53cc4ef64"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 57, 970, DateTimeKind.Utc).AddTicks(7303),
+                            Id = new Guid("c39b2291-1b35-4726-a853-23030a2955b1"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 29, 925, DateTimeKind.Utc).AddTicks(2503),
                             DateDebut = new DateTime(2025, 1, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateFin = new DateTime(2025, 3, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsArchived = false,
@@ -820,9 +820,9 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("3107b0b2-d7b8-4506-83ff-0232d9fbe48d"),
-                            AnneeScolaireId = new Guid("4c0a17e0-294a-4c77-9467-b163255f657e"),
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 57, 970, DateTimeKind.Utc).AddTicks(7309),
+                            Id = new Guid("79f89853-0522-4f0c-8a9d-2fab1ecf20b5"),
+                            AnneeScolaireId = new Guid("49ba4273-ba81-46e2-a044-47b46554cdcd"),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 29, 925, DateTimeKind.Utc).AddTicks(2507),
                             DateDebut = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateFin = new DateTime(2025, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsArchived = false,
@@ -893,10 +893,10 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("57ef8b55-d4db-41e3-a39c-fd1ff56c352e"),
+                            Id = new Guid("f02d7a06-dfa7-4699-b070-653727fab283"),
                             Categorie = "Inscription",
                             Code = "INSC",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(2666),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 31, DateTimeKind.Utc).AddTicks(288),
                             GenerationAutomatique = true,
                             IsArchived = false,
                             IsObligatoire = true,
@@ -906,10 +906,10 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("dd000a2c-c56e-4c71-84e5-1a695f89d8ef"),
+                            Id = new Guid("91bb45e7-6e26-47a8-a74d-f0c2c46a1294"),
                             Categorie = "Scolarite",
                             Code = "SCOL",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(2674),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 31, DateTimeKind.Utc).AddTicks(296),
                             Description = "Frais de scolarité trimestriel",
                             GenerationAutomatique = true,
                             IsArchived = false,
@@ -920,10 +920,10 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("695593e0-4c4a-40f6-8e74-d5a91efe8e59"),
+                            Id = new Guid("790fa98b-e947-4c19-b1d6-3cd1b63208e4"),
                             Categorie = "Cantine",
                             Code = "CANT",
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(2704),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 31, DateTimeKind.Utc).AddTicks(302),
                             Description = "Frais de cantine mensuel",
                             GenerationAutomatique = false,
                             IsArchived = false,
@@ -1012,17 +1012,59 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("66286bbb-80f5-4d8c-9c37-90ad5e4add58"),
-                            CreatedAt = new DateTime(2025, 12, 13, 12, 52, 58, 448, DateTimeKind.Utc).AddTicks(851),
+                            Id = new Guid("4805e2e0-a55b-4042-9257-f377c5afc201"),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 30, 207, DateTimeKind.Utc).AddTicks(7042),
                             Email = "admin@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Administrateur",
-                            PasswordHash = "$2a$11$OhEpXgHAUpu8aL651/vc2uMR70tJ49Vdwy5o3CtaIZVzYsLQw0BX6",
+                            PasswordHash = "$2a$11$kGyw90OXwsLJ9og5wnSjLucOu4C.43zhE8dLUsPQGcnhp9pvhOotG",
                             Prenom = "Système",
                             Role = "Admin",
                             Username = "admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("0a00556b-f5f0-4f6a-beca-90dc07a827ff"),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 30, 479, DateTimeKind.Utc).AddTicks(5246),
+                            Email = "directeur@schoolflow.com",
+                            FailedLoginAttempts = 0,
+                            IsActive = true,
+                            IsArchived = false,
+                            Nom = "Durand",
+                            PasswordHash = "$2a$11$nLJUJcrV97J3hAJBNhMg8OrEAFuautiqLpOvQwXIBKfjx1Ow5lARK",
+                            Prenom = "Marie",
+                            Role = "Directeur",
+                            Username = "directeur"
+                        },
+                        new
+                        {
+                            Id = new Guid("87cae480-fb8c-4d41-98ea-eb8df3c9ba7c"),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 30, 757, DateTimeKind.Utc).AddTicks(7285),
+                            Email = "comptable@schoolflow.com",
+                            FailedLoginAttempts = 0,
+                            IsActive = true,
+                            IsArchived = false,
+                            Nom = "Martin",
+                            PasswordHash = "$2a$11$GNbf6QSQ.9cB4awrYnKi7ufUJlnXTj8zmSN8W8FPfqB4hZC/wI1TW",
+                            Prenom = "Sophie",
+                            Role = "Comptable",
+                            Username = "comptable"
+                        },
+                        new
+                        {
+                            Id = new Guid("d080b4b5-1314-472f-9cbc-3ef83430ce56"),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 31, 30, DateTimeKind.Utc).AddTicks(7434),
+                            Email = "secretaire@schoolflow.com",
+                            FailedLoginAttempts = 0,
+                            IsActive = true,
+                            IsArchived = false,
+                            Nom = "Leroy",
+                            PasswordHash = "$2a$11$gpJiQcIQuJ60pIA5rx/.f.0ySSoWYNOXtqDSFt5DyW1.MLnKF1mTW",
+                            Prenom = "Paul",
+                            Role = "Secretaire",
+                            Username = "secretaire"
                         });
                 });
 
