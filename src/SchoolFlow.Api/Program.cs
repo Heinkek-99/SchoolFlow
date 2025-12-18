@@ -161,14 +161,25 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // ============================================
-// 6. HEALTHCHECKS
+// 6. BUILD APP
+// ============================================
+var app = builder.Build();
+
+// ============================================
+// 7. HEALTHCHECKS
 // ============================================ 
 builder.Services.AddHealthChecks()
     // .AddDbContextCheck<ApplicationDbContext>("Database");
      .AddCheck("Database", () =>
     {
-        using var scope = builder.Services.BuildServiceProvider().CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        // using var scope = builder.Services.BuildServiceProvider().CreateScope();
+        // var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            var dbContext = services.GetRequiredService<ApplicationDbContext>();
+            var logger = services.GetRequiredService<ILogger<Program>>();
+    
         try
         {
             dbContext.Database.CanConnect();
@@ -178,11 +189,12 @@ builder.Services.AddHealthChecks()
         {
             return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy("Database connection failed", ex);
         }
+    }
     });
 // ============================================
 // 7. BUILD APP
 // ============================================
-var app = builder.Build();
+// var app = builder.Build();
 
 // ============================================
 // 8. MIDDLEWARE PIPELINE
