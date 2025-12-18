@@ -68,4 +68,38 @@ jobs:
         name: schoolflow-api
         path: ./publish
 
- 
+  # ============================================
+  # JOB 2 : CODE QUALITY (SonarCloud)
+  # ============================================
+  code-quality:
+    name: 🔍 Code Quality Analysis
+    runs-on: windows-latest
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 🔧 Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: 📊 Setup SonarCloud Scanner
+      run: dotnet tool install --global dotnet-sonarscanner
+      
+    - name: 🔍 Begin SonarCloud Analysis
+      run: |
+        dotnet sonarscanner begin `
+          /k:"edifytech_schoolflow" `
+          /o:"edifytech" `
+          /d:sonar.host.url="https://sonarcloud.io" `
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+          /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.opencover.xml"
+
+    - name: 🔨 Build with SonarCloud
+      run: |
+        dotnet restore ${{ env.SOLUTION_PATH }}
+        dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
