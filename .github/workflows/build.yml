@@ -158,7 +158,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: 🔧 Install EF Core Tools
-      run: dotnet tool install --global dotnet-ef
+      run: dotnet tool update --global dotnet-ef || dotnet tool install --global dotnet-ef
     
     - name: 📦 Restore dependencies
       run: dotnet restore ${{ env.SOLUTION_PATH }}
