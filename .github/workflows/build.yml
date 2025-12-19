@@ -157,8 +157,8 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
-    - name: 🔧 Install EF Core Tools
-      run: dotnet tool update --global dotnet-ef || dotnet tool install --global dotnet-ef
+    # - name: 🔧 Install EF Core Tools
+    #   run: dotnet tool update --global dotnet-ef || dotnet tool install --global dotnet-ef
     
     - name: 📦 Restore dependencies
       run: dotnet restore ${{ env.SOLUTION_PATH }}
@@ -210,7 +210,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./src/SchoolFlow.API/Dockerfile
+        file: ./src/SchoolFlow.Api/Dockerfile
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/schoolflow-api:latest
