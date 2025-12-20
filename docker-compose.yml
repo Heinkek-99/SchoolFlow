@@ -10,22 +10,30 @@ services:
     container_name: schoolflow-sqlserver
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=SchoolFlow@2025&Strong
+      - SA_PASSWORD=Azerty@12
       - MSSQL_PID=Express
       - MSSQL_TCP_PORT=1433
     ports:
       - "11433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
-      - ./init-db:/docker-entrypoint-initdb.d
+      - ./init-sql:/docker-entrypoint-initdb.d
     networks:
       - schoolflow-network
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'SchoolFlow@2025&Strong' -Q 'SELECT 1'  -b || exit 1
+      test: ["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'"]
+        # >
+        # /opt/mssql-tools/bin/sqlcmd
+        # -S localhost 
+        # -U sa 
+        # -P 'Azerty@12' 
+        # -Q 'SELECT 1'  
+        # -b 
+        # || exit 1
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 5
+      start_period: 120s
     restart: unless-stopped
 
   # SchoolFlow API
@@ -42,7 +50,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
 
       # Database connection string
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=SchoolFlowDb;User Id=sa;Password=SchoolFlow@2025&Strong;TrustServerCertificate=true;MultipleActiveResultSets=true
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=SchoolFlowDb;User Id=sa;Password=Azerty@12;TrustServerCertificate=true;MultipleActiveResultSets=true;ConnectRetryCount=5;ConnectRetryInterval=10;ConnectTimeout=30
       
       # JWT Settings
       - JwtSettings__SecretKey=SchoolFlow-Docker-Secret-Key-2025-PRODUCTION-256bits
@@ -63,12 +71,13 @@ services:
       - api-photos:/app/wwwroot/photos
       - api-documents:/app/wwwroot/documents
     restart: unless-stopped
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 120s
 
 networks:
   schoolflow-network:
@@ -79,7 +88,7 @@ volumes:
   sqlserver-data:
     name: schoolflow-sqlserver-data
   api-logs:
-    name: schoolflow-api-logs
+    name: sc["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'"]hoolflow-api-logs
   api-photos:
     name: schoolflow-api-photos
   api-documents:

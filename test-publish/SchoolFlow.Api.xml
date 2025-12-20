@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SchoolFlow.Api</name>
+    </assembly>
+    <members>
+        <member name="T:SchoolFlow.API.Controllers.AuthController">
+            <summary>
+            Gestion de l'authentification
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.AuthController.Login(SchoolFlow.Application.Auth.Commands.LoginCommand)">
+            <summary>
+            Connexion utilisateur
+            </summary>
+            <param name="command">Identifiants de connexion</param>
+            <returns>Token JWT et infos utilisateur</returns>
+            <response code="200">Connexion réussie</response>
+            <response code="400">Identifiants incorrects</response>
+            <response code="401">Compte verrouillé</response>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.AuthController.Logout">
+            <summary>
+            Déconnexion utilisateur (invalidation token côté client)
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.AuthController.GetCurrentUser">
+            <summary>
+            Obtenir les informations de l'utilisateur connecté
+            </summary>
+        </member>
+        <member name="T:SchoolFlow.API.Controllers.ClassesController">
+            <summary>
+            Gestion des classes
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ClassesController.GetAll">
+            <summary>
+            Obtenir toutes les classes de l'année en cours
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ClassesController.GetById(System.Guid)">
+            <summary>
+            Obtenir une classe par ID avec ses élèves
+            </summary>
+        </member>
+        <member name="T:SchoolFlow.API.Controllers.DashboardController">
+            <summary>
+            Tableaux de bord et statistiques
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.DashboardController.GetStats">
+            <summary>
+            Obtenir les statistiques principales
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.DashboardController.GetImpayes(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Obtenir la liste des familles en impayé
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.DashboardController.GetTopImpayes">
+            <summary>
+            Récupère le top 10 des familles les plus endettées
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.DashboardController.GetFinances(SchoolFlow.Application.Dashboard.Queries.GetStatsFinancieresQuery)">
+            <summary>
+            Obtenir les statistiques financières détaillées
+            </summary>
+        </member>
+        <member name="T:SchoolFlow.API.Controllers.ElevesController">
+            <summary>
+            Gestion des élèves
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ElevesController.GetAll(SchoolFlow.Application.Eleves.Queries.GetAllElevesQuery)">
+            <summary>
+            Obtenir tous les élèves actifs
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ElevesController.GetById(System.Guid)">
+            <summary>
+            Obtenir un élève par ID avec son dossier complet
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ElevesController.Create(SchoolFlow.Application.Eleves.Commands.CreateEleveCommand)">
+            <summary>
+            Inscrire un nouvel élève
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ElevesController.Update(System.Guid,SchoolFlow.Application.Eleves.Commands.UpdateEleveCommand)">
+            <summary>
+            Mettre à jour un élève
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ElevesController.Archive(System.Guid,SchoolFlow.Application.Eleves.Commands.ArchiveEleveCommand)">
+            <summary>
+            Archiver un élève (soft delete)
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ElevesController.GetByClasse(System.Guid)">
+            <summary>
+            Obtenir les élèves d'une classe
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.ElevesController.GetByFamille(System.Guid)">
+            <summary>
+            Obtenir les élèves d'une famille
+            </summary>
+        </member>
+        <member name="T:SchoolFlow.API.Controllers.FamillesController">
+            <summary>
+            Gestion des familles
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.FamillesController.GetAll(SchoolFlow.Application.Familles.Queries.GetAllFamillesQuery)">
+            <summary>
+            Obtenir toutes les familles
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.FamillesController.GetById(System.Guid)">
+            <summary>
+            Obtenir une famille par ID
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.FamillesController.Create(SchoolFlow.Application.Familles.Commands.CreateFamilleCommand)">
+            <summary>
+            Créer une nouvelle famille
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.FamillesController.Update(System.Guid,SchoolFlow.Application.Familles.Commands.UpdateFamilleCommand)">
+            <summary>
+            Mettre à jour une famille
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.FamillesController.Archive(System.Guid)">
+            <summary>
+            Archiver une famille (soft delete)
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.FamillesController.Search(System.String)">
+            <summary>
+            Rechercher familles par nom/téléphone
+            </summary>
+        </member>
+        <member name="T:SchoolFlow.API.Controllers.PaiementsController">
+            <summary>
+            Gestion des paiements
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.PaiementsController.Create(SchoolFlow.Application.Paiements.Commands.EnregistrerPaiementCommand)">
+            <summary>
+            Enregistrer un nouveau paiement avec ventilation
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.PaiementsController.GetByNumero(System.String)">
+            <summary>
+            Obtenir un paiement par son numéro
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.PaiementsController.GetByFamille(System.Guid)">
+            <summary>
+            Obtenir l'historique des paiements d'une famille
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.PaiementsController.GetAll(SchoolFlow.Application.Paiements.Queries.GetAllPaiementsQuery)">
+            <summary>
+            Obtenir tous les paiements (avec filtres)
+            </summary>
+        </member>
+        <member name="M:SchoolFlow.API.Controllers.PaiementsController.ProposerVentilation(SchoolFlow.Application.Paiements.Queries.ProposerVentilationQuery)">
+            <summary>
+            Proposer une ventilation automatique pour un montant
+            </summary>
+        </member>
+    </members>
+</doc>

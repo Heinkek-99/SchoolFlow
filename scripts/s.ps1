@@ -7,7 +7,7 @@ param(
     [string]$ServerInstance = "localhost",
     [string]$DatabaseName = "SchoolFlowDb",
     [string]$SqlUser = "sa",
-    [string]$SqlPassword = "SchoolFlow@2025&Strong",
+    [string]$SqlPassword = "Azerty@12",
     [string]$SqlPort = "11433",
     [switch]$Reset,
     [switch]$SeedOnly

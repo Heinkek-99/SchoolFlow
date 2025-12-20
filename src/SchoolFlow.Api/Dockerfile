@@ -34,6 +34,16 @@ COPY --from=publish /app/publish .
 # Create directories for logs and uploads
 RUN mkdir -p /app/logs /app/wwwroot/photos /app/wwwroot/documents
 
+# Script d'attente SQL Server
+RUN echo '#!/bin/bash\n\
+until nc -z sqlserver 1433; do\n\
+  echo "Waiting for SQL Server..."\n\
+  sleep 3\n\
+done\n\
+echo "SQL Server is ready!"\n\
+exec "$@"' > /wait.sh && chmod +x /wait.sh
+
+
 # Exposer les ports
 EXPOSE 8080 8081
 
@@ -42,4 +52,4 @@ ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Set the entry point
-ENTRYPOINT ["dotnet", "SchoolFlow.Api.dll"]
+ENTRYPOINT ["/wait.sh", "dotnet", "SchoolFlow.Api.dll"]
