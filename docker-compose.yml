@@ -6,22 +6,22 @@ version: '3.8'
 services:
   # SQL Server
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: schoolflow-sqlserver
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Azerty@12
       - MSSQL_PID=Express
-      - MSSQL_TCP_PORT=1433
+      # - MSSQL_TCP_PORT=1433
     ports:
       - "11433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
-      - ./init-sql:/docker-entrypoint-initdb.d
+      # - ./init-sql:/docker-entrypoint-initdb.d
     networks:
       - schoolflow-network
     healthcheck:
-      test: ["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'"]
+      # test: ["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'"]
         # >
         # /opt/mssql-tools/bin/sqlcmd
         # -S localhost 
@@ -30,10 +30,11 @@ services:
         # -Q 'SELECT 1'  
         # -b 
         # || exit 1
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Azerty@12' -Q 'SELECT 1' -b -o /dev/null
       interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 120s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     restart: unless-stopped
 
   # SchoolFlow API
@@ -44,26 +45,26 @@ services:
     container_name: schoolflow-api
     ports:
       - "5294:8080"
-      - "7218:8081"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
 
       # Database connection string
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=SchoolFlowDb;User Id=sa;Password=Azerty@12;TrustServerCertificate=true;MultipleActiveResultSets=true;ConnectRetryCount=5;ConnectRetryInterval=10;ConnectTimeout=30
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=SchoolFlowDb;User Id=sa;Password=Azerty@12;TrustServerCertificate=true;MultipleActiveResultSets=true
       
       # JWT Settings
       - JwtSettings__SecretKey=SchoolFlow-Docker-Secret-Key-2025-PRODUCTION-256bits
-      - JwtSettings__Issuer=SchoolFlowAPI
+      - JwtSettings__Issuer=SchoolFlowApi
       - JwtSettings__Audience=SchoolFlowClients
       - JwtSettings__ExpirationHours=8
 
       # Logging
-      - Logging__LogLevel__Default=Information
-      - Logging__LogLevel__Microsoft.EntityFrameworkCore=Warning
+      # - Logging__LogLevel__Default=Information
+      # - Logging__LogLevel__Microsoft.EntityFrameworkCore=Warning
     depends_on:
       sqlserver:
-        condition: service_healthy
+        condition: service_started
     networks:
       - schoolflow-network
     volumes:
@@ -72,24 +73,24 @@ services:
       - api-documents:/app/wwwroot/documents
     restart: unless-stopped
 
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 120s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 120s
 
 networks:
   schoolflow-network:
     driver: bridge
-    name: schoolflow-network
+    # name: schoolflow-network
 
 volumes:
   sqlserver-data:
-    name: schoolflow-sqlserver-data
+    # name: schoolflow-sqlserver-data
   api-logs:
-    name: sc["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'"]hoolflow-api-logs
+    # name: sc["CMD-SHELL", "timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/1433'"]hoolflow-api-logs
   api-photos:
-    name: schoolflow-api-photos
+    # name: schoolflow-api-photos
   api-documents:
-    name: schoolflow-api-documents
+    # name: schoolflow-api-documents

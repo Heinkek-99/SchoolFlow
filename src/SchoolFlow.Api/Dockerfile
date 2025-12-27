@@ -1,8 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
+# Use the official ASP.NET Core runtime as a base image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
@@ -16,13 +12,17 @@ RUN dotnet restore "SchoolFlow.Api/SchoolFlow.Api.csproj"
 
 # Copy everything else and build
 COPY src/ .
+
+# Build the project
 WORKDIR "/src/SchoolFlow.Api"
 RUN dotnet build "SchoolFlow.Api.csproj" -c Release -o /app/build
 
+# Publish the project
 FROM build AS publish
 RUN dotnet publish "SchoolFlow.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM base AS final
+# Runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 # Installer curl pour healthcheck
@@ -32,7 +32,8 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 COPY --from=publish /app/publish .
 
 # Create directories for logs and uploads
-RUN mkdir -p /app/logs /app/wwwroot/photos /app/wwwroot/documents
+RUN mkdir -p /app/logs /app/wwwroot/photos /app/wwwroot/documents && \
+    chmod -R 755 /app
 
 # Script d'attente SQL Server
 RUN echo '#!/bin/bash\n\
@@ -45,11 +46,14 @@ exec "$@"' > /wait.sh && chmod +x /wait.sh
 
 
 # Exposer les ports
-EXPOSE 8080 8081
+EXPOSE 8080
+# EXPOSE 8081
 
 # Variables d'environnement par défaut
-ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_HTTP_PORTS=8080
+# ENV ASPNETCORE_HTTP_PORTS=8081
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Set the entry point
-ENTRYPOINT ["/wait.sh", "dotnet", "SchoolFlow.Api.dll"]
+ENTRYPOINT ["dotnet", "SchoolFlow.Api.dll"]

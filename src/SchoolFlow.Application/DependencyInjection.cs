@@ -15,12 +15,14 @@ public static class DependencyInjection
         // MediatR
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
 
-        // FluentValidation
-        services.AddValidatorsFromAssembly(assembly);
-
         // Pipeline Behaviors
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+        // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+
+
+        // FluentValidation
+        services.AddValidatorsFromAssembly(assembly);
 
         return services;
     }

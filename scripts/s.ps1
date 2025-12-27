@@ -127,7 +127,7 @@ Write-Host "[ACTION] Application des migrations Entity Framework Core..." -Foreg
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $infrastructureProject = Join-Path $projectRoot "src\SchoolFlow.Infrastructure\SchoolFlow.Infrastructure.csproj"
-$apiProject = Join-Path $projectRoot "src\SchoolFlow.API\SchoolFlow.API.csproj"
+$apiProject = Join-Path $projectRoot "src\SchoolFlow.Api\SchoolFlow.Api.csproj"
 
 if (-not (Test-Path $infrastructureProject)) {
     Write-Host "[ERROR] Projet Infrastructure introuvable: $infrastructureProject" -ForegroundColor Red
@@ -135,7 +135,7 @@ if (-not (Test-Path $infrastructureProject)) {
 }
 
 if (-not (Test-Path $apiProject)) {
-    Write-Host "[ERROR] Projet API introuvable: $apiProject" -ForegroundColor Red
+    Write-Host "[ERROR] Projet Api introuvable: $apiProject" -ForegroundColor Red
     exit 1
 }
 
@@ -239,6 +239,15 @@ Write-Host "============================================" -ForegroundColor Cyan
 Write-Host "  Username : admin" -ForegroundColor White
 Write-Host "  Password : Admin@2025" -ForegroundColor White
 Write-Host ""
+Write-Host "  Username : directeur" -ForegroundColor White
+Write-Host "  Password : Dir@2025" -ForegroundColor White
+Write-Host ""
+Write-Host "  Username : secretaire" -ForegroundColor White
+Write-Host "  Password : Sec@2025" -ForegroundColor White
+Write-Host ""
+Write-Host "  Username : comptable" -ForegroundColor White
+Write-Host "  Password : Comptan@2025" -ForegroundColor White
+Write-Host ""
 Write-Host "  [WARNING] CHANGEZ CE MOT DE PASSE EN PRODUCTION !" -ForegroundColor Red
 Write-Host "============================================" -ForegroundColor Cyan
 
@@ -250,7 +259,7 @@ Write-Host "[INFO] Connection String:" -ForegroundColor Cyan
 Write-Host $connectionString -ForegroundColor White
 
 # Sauvegarder dans appsettings.Development.json
-$apiFolder = Join-Path $projectRoot "src\SchoolFlow.API"
+$apiFolder = Join-Path $projectRoot "src\SchoolFlow.Api"
 $appsettingsDevPath = Join-Path $apiFolder "appsettings.Development.json"
 
 if (Test-Path $appsettingsDevPath) {
@@ -282,9 +291,9 @@ Write-Host "  [SUCCESS] SETUP DATABASE TERMINE !" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Prochaines etapes:" -ForegroundColor Yellow
-Write-Host "  1. cd src\SchoolFlow.API" -ForegroundColor White
+Write-Host "  1. cd src\SchoolFlow.Api" -ForegroundColor White
 Write-Host "  2. dotnet run" -ForegroundColor White
-Write-Host "  3. Ouvrir https://localhost:5001" -ForegroundColor White
+Write-Host "  3. Ouvrir https://localhost:5294" -ForegroundColor White
 Write-Host ""
 
 # ============================================

@@ -1,0 +1,305 @@
+{
+  "info": {
+    "name": "SchoolFlow API - Tests par Rôle",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5294"
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "directeur_token",
+      "value": ""
+    },
+    {
+      "key": "secretaire_token",
+      "value": ""
+    },
+    {
+      "key": "comptable_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 AUTHENTIFICATION",
+      "item": [
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"admin_token\", jsonData.data.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login Directeur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"directeur_token\", jsonData.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"directeur\",\n  \"password\": \"Directeur@123\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login Secrétaire",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"secretaire_token\", jsonData.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"secretaire\",\n  \"password\": \"Secretaire@123\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login Comptable",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"comptable_token\", jsonData.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"comptable\",\n  \"password\": \"Comptable@123\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👨‍💼 ADMIN - Gestion Utilisateurs",
+      "item": [
+        {
+          "name": "Créer Utilisateur Directeur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"directeur\",\n  \"email\": \"directeur@schoolflow.com\",\n  \"password\": \"Directeur@123\",\n  \"prenom\": \"Jean\",\n  \"nom\": \"KOUASSI\",\n  \"role\": \"Directeur\"\n}"
+            },
+            "url": "{{base_url}}/api/users"
+          }
+        },
+        {
+          "name": "Lister tous les utilisateurs",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/api/users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 SECRÉTAIRE - Inscription Élèves",
+      "item": [
+        {
+          "name": "Créer Famille",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"famille_id\", jsonData.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{secretaire_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomPere\": \"TRAORE\",\n  \"prenomPere\": \"Amadou\",\n  \"telephonePere\": \"+225 07 12 34 56 78\",\n  \"emailPere\": \"amadou.traore@example.com\",\n  \"nomMere\": \"KONE\",\n  \"prenomMere\": \"Mariam\",\n  \"telephoneMere\": \"+225 07 98 76 54 32\",\n  \"telephonePrincipal\": \"+225 07 12 34 56 78\",\n  \"adresse\": \"Cocody Angré 8ème Tranche\",\n  \"ville\": \"Abidjan\",\n  \"quartierCommune\": \"Cocody\"\n}"
+            },
+            "url": "{{base_url}}/api/familles"
+          }
+        },
+        {
+          "name": "Créer Classe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"classe_id\", jsonData.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{secretaire_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"6ème A\",\n  \"niveau\": \"Collège\",\n  \"capaciteMax\": 40\n}"
+            },
+            "url": "{{base_url}}/api/classes"
+          }
+        },
+        {
+          "name": "Inscrire Élève",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{secretaire_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"TRAORE\",\n  \"prenom\": \"Sekou\",\n  \"dateNaissance\": \"2012-05-15\",\n  \"lieuNaissance\": \"Abidjan\",\n  \"sexe\": \"Masculin\",\n  \"nationalite\": \"Ivoirienne\",\n  \"familleId\": \"{{famille_id}}\",\n  \"classeId\": \"{{classe_id}}\",\n  \"statut\": \"Actif\"\n}"
+            },
+            "url": "{{base_url}}/api/eleves"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 COMPTABLE - Gestion Finances",
+      "item": [
+        {
+          "name": "Créer Type Frais",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"type_frais_id\", jsonData.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{comptable_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Scolarité\",\n  \"description\": \"Frais de scolarité trimestrielle\",\n  \"montantParDefaut\": 150000,\n  \"estRecurrent\": true\n}"
+            },
+            "url": "{{base_url}}/api/typefrais"
+          }
+        },
+        {
+          "name": "Enregistrer Paiement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{comptable_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"familleId\": \"{{famille_id}}\",\n  \"montant\": 50000,\n  \"datePaiement\": \"2025-01-15\",\n  \"modePaiement\": \"Especes\",\n  \"reference\": \"PAY-001\"\n}"
+            },
+            "url": "{{base_url}}/api/paiements"
+          }
+        },
+        {
+          "name": "Dashboard Finances",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{comptable_token}}"}],
+            "url": "{{base_url}}/api/dashboard/finances"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 DIRECTEUR - Statistiques",
+      "item": [
+        {
+          "name": "Dashboard Global",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{directeur_token}}"}],
+            "url": "{{base_url}}/api/dashboard/stats"
+          }
+        },
+        {
+          "name": "Familles Impayées",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{directeur_token}}"}],
+            "url": "{{base_url}}/api/dashboard/impayes"
+          }
+        }
+      ]
+    }
+  ]
+}

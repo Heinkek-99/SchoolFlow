@@ -21,6 +21,17 @@ public class GetEleveByClasseQueryHandler : IRequestHandler<GetElevesByClasseQue
 
     public async Task<Result<List<EleveSimpleDto>>> Handle(GetElevesByClasseQuery request, CancellationToken  ct)
     {
+
+        var classeExists = await _context.Classes
+            .AnyAsync(c => c.Id == request.ClasseId && !c.IsArchived, ct);
+
+        if (!classeExists)
+        {
+            return Result<List<EleveSimpleDto>>.Failure(
+                $"Classe avec l'ID {request.ClasseId} introuvable"
+            );
+        }
+
         var eleves = await _context.Eleves
             .Include(e => e.Frais.Where(f => !f.IsArchived))
             .Where(e => e.ClasseId == request.ClasseId && e.Statut == StatutEleve.Actif)
@@ -33,7 +44,11 @@ public class GetEleveByClasseQueryHandler : IRequestHandler<GetElevesByClasseQue
             e.Id,
             e.Matricule,
             $"{e.Prenom} {e.Nom}",
+            e.DateNaissance,
             e.Sexe.ToString(),
+            e.Classe != null ? e.Classe.Nom : "Non assogné",
+            e.PhotoPath,
+
             e.Frais.Sum(f => f.Montant - f.MontantPaye)
         )).ToList();
 
