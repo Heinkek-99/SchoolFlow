@@ -47,6 +47,8 @@ appsettings.Production.json
 
 # Docker
 **/docker-compose.override.yml
+**/docker-compose.yml
+**/Dockerfile.dev
 
 # Logs
 logs/
@@ -58,3 +60,17 @@ logs/
 
 # GitHub Actions
 **/act.exe
+
+**/LocalSettings.json
+
+# JetBrains Rider 
+**.env
+.idea/
+
+.env
+.env.local
+.env.*.local
+**/.env
+
+# Others
+global.json

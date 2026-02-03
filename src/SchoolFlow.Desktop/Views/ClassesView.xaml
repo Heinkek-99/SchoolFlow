@@ -1,0 +1,199 @@
+<UserControl x:Class="SchoolFlow.Desktop.Views.ClassesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="768" d:DesignWidth="1100"
+             Background="#F5F6FA">
+
+    <Grid Margin="30">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Liste des classes -->
+        <Grid Grid.Column="0" Margin="0,0,15,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- En-tête -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                <TextBlock Text="Gestion des Classes" 
+                           FontSize="28" 
+                           FontWeight="Bold" 
+                           Foreground="#2C3E50" />
+                <Button Content="+ Nouvelle classe" 
+                        Command="{Binding AddClasseCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Margin="20,0,0,0"
+                        VerticalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Grille des classes (style cartes) -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Classes}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" 
+                                    CornerRadius="8" 
+                                    Width="200" 
+                                    Margin="0,0,15,15"
+                                    Cursor="Hand">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1" />
+                                </Border.Effect>
+                                <Border.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" 
+                                                  Command="{Binding DataContext.ViewDetailCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+                                </Border.InputBindings>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="60" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Bande colorée en haut -->
+                                    <Border Grid.Row="0" 
+                                            Background="#3498DB" 
+                                            CornerRadius="8,8,0,0">
+                                        <TextBlock Text="{Binding Nom}" 
+                                                   FontSize="18" 
+                                                   FontWeight="Bold" 
+                                                   Foreground="White"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <!-- Contenu -->
+                                    <StackPanel Grid.Row="1" Padding="15">
+                                        <TextBlock>
+                                            <Run Text="Niveau: " Foreground="#7F8C8D" />
+                                            <Run Text="{Binding Niveau}" FontWeight="SemiBold" />
+                                        </TextBlock>
+                                        <TextBlock Margin="0,5,0,0">
+                                            <Run Text="Effectif: " Foreground="#7F8C8D" />
+                                            <Run Text="{Binding Effectif}" FontWeight="SemiBold" />
+                                            <Run Text=" élèves" Foreground="#7F8C8D" />
+                                        </TextBlock>
+                                        <TextBlock Margin="0,5,0,0">
+                                            <Run Text="Capacité: " Foreground="#7F8C8D" />
+                                            <Run Text="{Binding Capacite}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Panneau détail classe -->
+        <Border Grid.Column="1" 
+                Width="380" 
+                Background="White" 
+                CornerRadius="8" 
+                Padding="20"
+                Visibility="{Binding IsDetailVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1" />
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- En-tête -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                    <TextBlock Text="Détail Classe" 
+                               FontSize="20" 
+                               FontWeight="SemiBold" 
+                               Foreground="#2C3E50" />
+                    <Button Content="✕" 
+                            Command="{Binding CloseDetailCommand}"
+                            Style="{StaticResource CloseButtonStyle}"
+                            Margin="80,0,0,0" />
+                </StackPanel>
+
+                <!-- Infos classe -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,20">
+                    <TextBlock Text="{Binding ClasseDetail.Nom}" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="#2C3E50" />
+                    <TextBlock Margin="0,10,0,0">
+                        <Run Text="Niveau: " Foreground="#7F8C8D" />
+                        <Run Text="{Binding ClasseDetail.Niveau}" FontWeight="SemiBold" />
+                    </TextBlock>
+                    <TextBlock Margin="0,5,0,0">
+                        <Run Text="Effectif: " Foreground="#7F8C8D" />
+                        <Run Text="{Binding NombreEleves}" FontWeight="Bold" Foreground="#3498DB" />
+                        <Run Text=" / " Foreground="#7F8C8D" />
+                        <Run Text="{Binding ClasseDetail.Capacite}" />
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Liste des élèves -->
+                <StackPanel Grid.Row="2">
+                    <TextBlock Text="Élèves de la classe" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Foreground="#34495E"
+                               Margin="0,0,0,10" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
+                        <ItemsControl ItemsSource="{Binding ClasseDetail.Eleves}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#F8F9FA" 
+                                            CornerRadius="5" 
+                                            Padding="10" 
+                                            Margin="0,0,0,5">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock FontWeight="SemiBold">
+                                                    <Run Text="{Binding Prenom}" />
+                                                    <Run Text=" " />
+                                                    <Run Text="{Binding Nom}" />
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Matricule}" 
+                                                           Foreground="#95A5A6" 
+                                                           FontSize="11" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" 
+                                                       Text="{Binding SoldeFrais, Converter={StaticResource CurrencyConverter}}"
+                                                       Foreground="{Binding SoldeFrais, Converter={StaticResource SoldeToColorConverter}}"
+                                                       FontSize="11"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Chargement -->
+        <Border Grid.ColumnSpan="2" 
+                Background="#80000000"
+                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressBar IsIndeterminate="True" Width="200" Height="4" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+    </Grid>
+</UserControl>
