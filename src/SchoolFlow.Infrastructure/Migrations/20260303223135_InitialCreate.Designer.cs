@@ -2,17 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SchoolFlow.Infrastructure.Data;
 
 #nullable disable
 
-namespace SchoolFlow.Infrastructure.Data.Migrations
+namespace SchoolFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251226135441_InitialCreate")]
+    [Migration("20260303223135_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -21,47 +21,47 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.AnneeScolaire", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateDebut")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateFin")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Libelle")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -70,10 +70,10 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 30, 149, DateTimeKind.Utc).AddTicks(2586),
-                            DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateFin = new DateTime(2025, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 206, DateTimeKind.Utc).AddTicks(3693),
+                            DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateFin = new DateTime(2025, 6, 30, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsActive = true,
                             IsArchived = false,
                             Libelle = "2024-2025"
@@ -84,52 +84,52 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Action")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("EntityId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("EntityType")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("NewValues")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("OldValues")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("UtilisateurId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -146,49 +146,49 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("AnneeScolaireId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("CapaciteMax")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Niveau")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Section")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -199,132 +199,132 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("760b3151-b9c1-47f1-b160-c440f0e80da2"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("3d458761-1f99-4d89-bb10-e55145a43c9b"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "CP",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(2929),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9213),
                             IsArchived = false,
                             Niveau = "CP",
                             Nom = "CP"
                         },
                         new
                         {
-                            Id = new Guid("98511974-fef5-4757-88c5-1976a0116a97"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("5b7977c3-3a53-44ec-8144-9279d2743188"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "CE1",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(2965),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9242),
                             IsArchived = false,
                             Niveau = "CE1",
                             Nom = "CE1"
                         },
                         new
                         {
-                            Id = new Guid("5b9898a3-2df1-4408-861f-c5c48570e07d"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("5e3648b8-1ecd-4c50-9ccb-96d6ab8748d5"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "CE2",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(2979),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9253),
                             IsArchived = false,
                             Niveau = "CE2",
                             Nom = "CE2"
                         },
                         new
                         {
-                            Id = new Guid("ba8857c1-f71c-4d7e-8416-0f9c3363f7b6"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("f7f2edc1-c130-4d4d-8e03-c3aff661c85f"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "CM1",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(2992),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9285),
                             IsArchived = false,
                             Niveau = "CM1",
                             Nom = "CM1"
                         },
                         new
                         {
-                            Id = new Guid("6d83f47c-44bb-455f-accd-30108eeceee4"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("e55206c2-d4e4-4830-9bd4-1de84ec1a01a"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "CM2",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3010),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9293),
                             IsArchived = false,
                             Niveau = "CM2",
                             Nom = "CM2"
                         },
                         new
                         {
-                            Id = new Guid("e1aec637-fc69-4e40-b047-41acbd35669a"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("d51e956c-991d-473e-ad63-deeca3421457"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "SIXIEME",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3049),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9537),
                             IsArchived = false,
                             Niveau = "Sixieme",
                             Nom = "6ème"
                         },
                         new
                         {
-                            Id = new Guid("b33cf9a1-78ac-414e-88dd-356c9422b470"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("c5a759a4-47c1-49b3-9e79-b1a6b5f1d5b6"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "CINQUIEME",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3098),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9593),
                             IsArchived = false,
                             Niveau = "Cinquieme",
                             Nom = "5ème"
                         },
                         new
                         {
-                            Id = new Guid("f13f0755-a602-4584-8c3b-d03d6dbe36ef"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("e02cd263-6608-4488-859a-e640e5a12a08"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "QUATRIEME",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3110),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9617),
                             IsArchived = false,
                             Niveau = "Quatrieme",
                             Nom = "4ème"
                         },
                         new
                         {
-                            Id = new Guid("011bd139-809a-4959-9bb7-0c736549a745"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("485288eb-599f-4cc4-b69b-94679798cfab"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "TROISIEME",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3124),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9628),
                             IsArchived = false,
                             Niveau = "Troisieme",
                             Nom = "3ème"
                         },
                         new
                         {
-                            Id = new Guid("162a342f-3e60-4452-89ea-23eea2881969"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("efaa9843-efbb-4d5a-9b03-a1c1200a8e82"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "SECONDE",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3136),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9643),
                             IsArchived = false,
                             Niveau = "Seconde",
                             Nom = "2nde"
                         },
                         new
                         {
-                            Id = new Guid("92d9a073-40d7-414b-a47a-074dcbdae334"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("77a717f6-a8ac-4fdf-85f5-743c0fbff36a"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "PREMIERE",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3148),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9654),
                             IsArchived = false,
                             Niveau = "Premiere",
                             Nom = "1ère"
                         },
                         new
                         {
-                            Id = new Guid("fc0a4a38-ffa1-458d-bc24-c8b55aee5083"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
+                            Id = new Guid("dfb98b57-4a32-4e27-9133-231b31ad94f5"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
                             CapaciteMax = 60,
                             Code = "TERMINALE",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3158),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9670),
                             IsArchived = false,
                             Niveau = "Terminale",
                             Nom = "Tle"
@@ -335,87 +335,87 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Allergies")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("AnneeScolaireId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("ClasseId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ContactUrgence")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateInscription")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateNaissance")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("FamilleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("GroupeSanguin")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LieuNaissance")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Matricule")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Nationalite")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PhotoPath")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Prenom")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Remarques")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Sexe")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Statut")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -435,83 +435,83 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Adresse")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EmailMere")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("EmailPere")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("NomMere")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("NomPere")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PrenomMere")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PrenomPere")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("ProfessionMere")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProfessionPere")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("QuartierCommune")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("TelephoneMere")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("TelephonePere")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("TelephonePrincipal")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("TelephoneSecondaire")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Ville")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -522,51 +522,51 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Commentaire")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateEcheance")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("EleveId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("Montant")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<decimal>("MontantPaye")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<Guid?>("PeriodeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Remarques")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("TypeFraisId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -583,38 +583,38 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<int>("Coefficient")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Libelle")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -625,49 +625,49 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Commentaire")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("EleveId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<Guid?>("MatiereId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("NoteSur")
                         .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("numeric(5,2)");
 
                     b.Property<Guid?>("PeriodeId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Valeur")
                         .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("numeric(5,2)");
 
                     b.HasKey("Id");
 
@@ -684,54 +684,54 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Commentaire")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DatePaiement")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("EnregistrePar")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("FamilleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("ModePaiement")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("MontantTotal")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<string>("NumeroPaiement")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("character varying(30)");
 
                     b.Property<string>("Reference")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -749,46 +749,46 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("AnneeScolaireId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateDebut")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateFin")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Libelle")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<int>("Numero")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -799,11 +799,11 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("2841351b-07d1-4a3f-b1d2-62a4dfc513b5"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 30, 149, DateTimeKind.Utc).AddTicks(3079),
-                            DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateFin = new DateTime(2024, 12, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = new Guid("815cb673-33b7-4a2c-9ee6-2e6ef7e3aff2"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 206, DateTimeKind.Utc).AddTicks(4246),
+                            DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateFin = new DateTime(2024, 12, 15, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsArchived = false,
                             Libelle = "Trimestre 1",
                             Numero = 1,
@@ -811,11 +811,11 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("6535e75b-5a42-41a7-ba0b-101e17f6cc0c"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 30, 149, DateTimeKind.Utc).AddTicks(3087),
-                            DateDebut = new DateTime(2025, 1, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateFin = new DateTime(2025, 3, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = new Guid("963eb957-0ddc-424f-9bd9-a24d22be6b65"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 206, DateTimeKind.Utc).AddTicks(4255),
+                            DateDebut = new DateTime(2025, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateFin = new DateTime(2025, 3, 31, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsArchived = false,
                             Libelle = "Trimestre 2",
                             Numero = 2,
@@ -823,11 +823,11 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f60dcc90-6857-4676-a875-72454318a99f"),
-                            AnneeScolaireId = new Guid("a4d4d9e7-87cc-4f37-8cc5-903c2f633047"),
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 30, 149, DateTimeKind.Utc).AddTicks(3290),
-                            DateDebut = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateFin = new DateTime(2025, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = new Guid("4dd1d48c-5b19-4541-b34c-4bbef93a9759"),
+                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 206, DateTimeKind.Utc).AddTicks(4260),
+                            DateDebut = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateFin = new DateTime(2025, 6, 30, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsArchived = false,
                             Libelle = "Trimestre 3",
                             Numero = 3,
@@ -839,55 +839,55 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Categorie")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("GenerationAutomatique")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsObligatoire")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsRecurrent")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Libelle")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("MontantsParNiveau")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("jsonb");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -896,10 +896,10 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e33935ee-4e54-4079-9435-a242b52578f5"),
+                            Id = new Guid("a84b52b7-79f6-47ea-b5b8-852e75a8ccd7"),
                             Categorie = "Inscription",
                             Code = "INSC",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3871),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 394, DateTimeKind.Utc).AddTicks(896),
                             GenerationAutomatique = true,
                             IsArchived = false,
                             IsObligatoire = true,
@@ -909,10 +909,10 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("5c2c6d83-8527-4cb2-9137-b4ef1e2e326d"),
+                            Id = new Guid("c0cb0248-510c-469b-829f-80e84954c760"),
                             Categorie = "Scolarite",
                             Code = "SCOL",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3881),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 394, DateTimeKind.Utc).AddTicks(908),
                             Description = "Frais de scolarité trimestriel",
                             GenerationAutomatique = true,
                             IsArchived = false,
@@ -923,10 +923,10 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                         },
                         new
                         {
-                            Id = new Guid("da911798-e028-4e5f-b336-acde0952f536"),
+                            Id = new Guid("7369786d-688d-4567-8077-fca4a56c1d0d"),
                             Categorie = "Cantine",
                             Code = "CANT",
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(3887),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 394, DateTimeKind.Utc).AddTicks(916),
                             Description = "Frais de cantine mensuel",
                             GenerationAutomatique = false,
                             IsArchived = false,
@@ -941,69 +941,69 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("FailedLoginAttempts")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("LockedUntil")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Prenom")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Telephone")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -1015,56 +1015,56 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1fbae4e7-f95c-4ecb-9bdd-169cd25249f2"),
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 30, 889, DateTimeKind.Utc).AddTicks(4490),
+                            Id = new Guid("bdd7b3e0-207c-4971-9daf-adaa1cab13d7"),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 519, DateTimeKind.Utc).AddTicks(885),
                             Email = "admin@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Administrateur",
-                            PasswordHash = "$2a$11$WnfisnWbQ239P3s20CxHAOXD9LzGw0uBSRUj5QOJbas8QS28lXOWy",
+                            PasswordHash = "$2a$11$yFAzr72u0K4v1h/0Ov.Qcuat/1IUbr1cILHMYtq/Q1pYXj9O/WAiC",
                             Prenom = "Système",
                             Role = "Admin",
                             Username = "admin"
                         },
                         new
                         {
-                            Id = new Guid("7263be8a-5280-41c5-bf47-02fde17caf25"),
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 31, 501, DateTimeKind.Utc).AddTicks(9843),
+                            Id = new Guid("eee4d866-e0f1-40f5-8338-6b74b618270d"),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 809, DateTimeKind.Utc).AddTicks(4583),
                             Email = "directeur@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Durand",
-                            PasswordHash = "$2a$11$KE8qdribrTrMECPBNiRDjOiVso74CTH2Onuo2hqOuZOELbR12L7Dq",
+                            PasswordHash = "$2a$11$ledenWoLZC6bLPJ5jZoRdepLtojCoen3HxzZOGpoUYVHXfK06DBSC",
                             Prenom = "Marie",
                             Role = "Directeur",
                             Username = "directeur"
                         },
                         new
                         {
-                            Id = new Guid("ae7087c6-46ad-4505-971d-57b01ccf02a6"),
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 0, DateTimeKind.Utc).AddTicks(7651),
+                            Id = new Guid("39fecf1d-e759-45b8-89a8-f6164ae87a77"),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 96, DateTimeKind.Utc).AddTicks(1899),
                             Email = "comptable@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Martin",
-                            PasswordHash = "$2a$11$IJj1SMplCTo94cHgxqR3bO8B4prCvQ3mGUo2nKcujWbTV6/jUGLfK",
+                            PasswordHash = "$2a$11$CARvhJpSYWcRM4Bb7hDqE.XT6.PYgiS.Mzhfamy0eogKMdDiloBMe",
                             Prenom = "Sophie",
                             Role = "Comptable",
                             Username = "comptable"
                         },
                         new
                         {
-                            Id = new Guid("0f29a6df-a6cc-4a83-99ab-b6a484491776"),
-                            CreatedAt = new DateTime(2025, 12, 26, 13, 54, 32, 654, DateTimeKind.Utc).AddTicks(1900),
+                            Id = new Guid("6f57a332-7a39-4f85-ab09-35fcd925f449"),
+                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(8518),
                             Email = "secretaire@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Leroy",
-                            PasswordHash = "$2a$11$y7VLWUkDN3nGY4AEBaGKbOr9WX5BQAHKbEvrvYkKXSQHIUkDOYY8u",
+                            PasswordHash = "$2a$11$iTk0IVpr4XpY1Il9jnkzlu8XDxvLuWIZbcXYAXjoAsD3pwfK7QLXi",
                             Prenom = "Paul",
                             Role = "Secretaire",
                             Username = "secretaire"
@@ -1075,42 +1075,42 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ArchiveReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ArchivedBy")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("EleveId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("FraisId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("MontantVentile")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<Guid>("PaiementId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Remarque")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -1138,7 +1138,7 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasOne("SchoolFlow.Domain.Entities.AnneeScolaire", "AnneeScolaire")
                         .WithMany("Classes")
                         .HasForeignKey("AnneeScolaireId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AnneeScolaire");
@@ -1149,12 +1149,12 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasOne("SchoolFlow.Domain.Entities.AnneeScolaire", "AnneeScolaire")
                         .WithMany("Eleves")
                         .HasForeignKey("AnneeScolaireId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SchoolFlow.Domain.Entities.Classe", "Classe")
                         .WithMany("Eleves")
                         .HasForeignKey("ClasseId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SchoolFlow.Domain.Entities.Famille", "Famille")
                         .WithMany("Eleves")
@@ -1200,7 +1200,7 @@ namespace SchoolFlow.Infrastructure.Data.Migrations
                     b.HasOne("SchoolFlow.Domain.Entities.Eleve", "Eleve")
                         .WithMany("Notes")
                         .HasForeignKey("EleveId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SchoolFlow.Domain.Entities.Matiere", "Matiere")
                         .WithMany("Notes")

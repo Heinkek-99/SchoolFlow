@@ -29,7 +29,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(modelBuilder);       
 
         // Configuration Utilisateur
         modelBuilder.Entity<Utilisateur>(entity =>
@@ -104,12 +104,12 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasOne(e => e.Classe)
                 .WithMany(c => c.Eleves)
                 .HasForeignKey(e => e.ClasseId)
-                .OnDelete(DeleteBehavior.NoAction); 
+                .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasOne(e => e.AnneeScolaire)
                 .WithMany(a => a.Eleves)
                 .HasForeignKey(e => e.AnneeScolaireId)
-                .OnDelete(DeleteBehavior.NoAction); 
+                .OnDelete(DeleteBehavior.Restrict); 
 
             entity.HasMany(e => e.Frais)
                 .WithOne(f => f.Eleve)
@@ -142,7 +142,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasOne(c => c.AnneeScolaire)
                 .WithMany(a => a.Classes)
                 .HasForeignKey(c => c.AnneeScolaireId)
-                .OnDelete(DeleteBehavior.NoAction); 
+                .OnDelete(DeleteBehavior.Restrict); 
             
             entity.Ignore(c => c.EffectifActuel);
             
@@ -178,7 +178,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         );
             
             entity.Property(e => e.MontantsParNiveau)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("jsonb");
 
             entity.HasQueryFilter(t => !t.IsArchived);
         });
@@ -298,7 +298,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 .WithMany(e => e.Notes)
                 .HasForeignKey(n => n.EleveId)
                 .IsRequired(false)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             entity.HasOne(n => n.Matiere)
@@ -325,9 +325,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Property(e => e.IpAddress)
                 .HasMaxLength(50);
             entity.Property(e => e.OldValues)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("text");
             entity.Property(e => e.NewValues)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("text");
             
             entity.HasOne(a => a.Utilisateur)
                 .WithMany(u => u.AuditLogs)
@@ -387,8 +387,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         {
             Id = anneeScolaireId,
             Libelle = "2024-2025",
-            DateDebut = new DateTime(2024, 9, 1),
-            DateFin = new DateTime(2025, 6, 30),
+            DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, DateTimeKind.Utc),
+            DateFin = new DateTime(2025, 6, 30, 23, 59, 59, DateTimeKind.Utc),
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         });
@@ -405,8 +405,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 Libelle = "Trimestre 1",
                 Type = TypePeriode.Trimestre,
                 Numero = 1,
-                DateDebut = new DateTime(2024, 9, 1),
-                DateFin = new DateTime(2024, 12, 15),
+                DateDebut = new DateTime(2024, 9, 1,  0, 0, 0, DateTimeKind.Utc),
+                DateFin = new DateTime(2024, 12, 15, 23, 59, 59, DateTimeKind.Utc),
                 AnneeScolaireId = anneeScolaireId,
                 CreatedAt = DateTime.UtcNow
             },
@@ -416,8 +416,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 Libelle = "Trimestre 2",
                 Type = TypePeriode.Trimestre,
                 Numero = 2,
-                DateDebut = new DateTime(2025, 1, 7),
-                DateFin = new DateTime(2025, 3, 31),
+                DateDebut = new DateTime(2025, 1, 7, 0, 0, 0, DateTimeKind.Utc),
+                DateFin = new DateTime(2025, 3, 31, 23, 59, 59, DateTimeKind.Utc),
                 AnneeScolaireId = anneeScolaireId,
                 CreatedAt = DateTime.UtcNow
             },
@@ -427,8 +427,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 Libelle = "Trimestre 3",
                 Type = TypePeriode.Trimestre,
                 Numero = 3,
-                DateDebut = new DateTime(2025, 4, 1),
-                DateFin = new DateTime(2025, 6, 30),
+                DateDebut = new DateTime(2025, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+                DateFin = new DateTime(2025, 6, 30, 23, 59, 59, DateTimeKind.Utc),
                 AnneeScolaireId = anneeScolaireId,
                 CreatedAt = DateTime.UtcNow
             }

@@ -52,11 +52,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Activer le Split Query pour éviter les warnings
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(
+    options.UseNpgsql(
         connectionString,
         sqlOptions =>
         {
-            sqlOptions.EnableRetryOnFailure(3);
+            // sqlOptions.EnableRetryOnFailure(3);
             sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
         });
 });
