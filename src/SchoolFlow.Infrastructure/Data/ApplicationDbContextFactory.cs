@@ -10,10 +10,18 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         // Build configuration to read the connection string
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddJsonFile("appsettings.Development.json", optional: false)
+            .AddEnvironmentVariables()
+            .Build();
+            
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+                               ?? configuration.GetConnectionString("DefaultConnection");
+        
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseNpgsql(
-            "Host=localhost;Port=5432;Database=SchoolFlowDb;Username=postgres;Password=azer"
-        );
+        optionsBuilder.UseNpgsql(connectionString);
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }
