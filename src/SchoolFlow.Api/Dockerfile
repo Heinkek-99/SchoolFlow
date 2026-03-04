@@ -1,6 +1,6 @@
 # Use the official ASP.NET Core runtime as a base image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
 # Copy csproj files and restore
 COPY ["src/SchoolFlow.Api/SchoolFlow.Api.csproj", "SchoolFlow.Api/"]
@@ -14,7 +14,7 @@ RUN dotnet restore "SchoolFlow.Api/SchoolFlow.Api.csproj"
 COPY src/ .
 
 # Build the project
-WORKDIR "/src/SchoolFlow.Api"
+WORKDIR "/app/SchoolFlow.Api"
 RUN dotnet build "SchoolFlow.Api.csproj" -c Release -o /app/build
 
 # Publish the project
