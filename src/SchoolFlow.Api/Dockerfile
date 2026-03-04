@@ -47,12 +47,12 @@ exec "$@"' > /wait.sh && chmod +x /wait.sh
 
 # Exposer les ports
 EXPOSE 8080
-EXPOSE 8081
+# EXPOSE 8081
 
 # Variables d'environnement par défaut
-ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
+ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_HTTP_PORTS=8080
-ENV ASPNETCORE_HTTP_PORTS=8081
+# ENV ASPNETCORE_HTTP_PORTS=8081
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Set the entry point
