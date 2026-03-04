@@ -219,11 +219,6 @@ app.UseSwaggerUI(options =>
     options.DocumentTitle = "SchoolFlow API - Documentation";
 });
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(8080); // HTTP uniquement
-});
-
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
