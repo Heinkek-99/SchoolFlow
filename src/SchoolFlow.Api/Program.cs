@@ -3,6 +3,7 @@ using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -196,6 +197,12 @@ builder.Services.AddHealthChecks()
 // ============================================
 var app = builder.Build();
 
+// Support des headers proxy pour HTTPS
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+});
+
 // ============================================
 // 8. MIDDLEWARE PIPELINE
 // ============================================
@@ -218,6 +225,7 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "SchoolFlow API v1");
     options.RoutePrefix = string.Empty; // Swagger à la racine (http://localhost:5000/)
     options.DocumentTitle = "SchoolFlow API - Documentation";
+    options.ConfigObject.AdditionalItems["urls.primaryName"] = "https";
 });
 
 
@@ -252,6 +260,15 @@ if (app.Environment.IsDevelopment())
 // ============================================
 // 10. RUN
 // ============================================
+
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    foreach (var address in app.Urls)
+    {
+        Console.WriteLine($"🚀 Listening on {address}");
+    }
+});
+
 Log.Information("🚀 SchoolFlow API starting...");
 
 try
