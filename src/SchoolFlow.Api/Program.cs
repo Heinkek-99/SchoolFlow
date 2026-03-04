@@ -49,7 +49,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Chaîne de connexion définie dans votre configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
-Console.WriteLine($"Connection string: '{connectionString}'");
+// Console.WriteLine($"Connection string: '{connectionString}'");
 // Activer le Split Query pour éviter les warnings
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
