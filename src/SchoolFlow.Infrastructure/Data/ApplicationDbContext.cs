@@ -27,6 +27,23 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Matiere> Matieres => Set<Matiere>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
+    public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
+    {
+        // Corriger tous les DateTime Unspecified avant sauvegarde
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            foreach (var property in entry.Properties)
+            {
+                if (property.CurrentValue is DateTime dt && 
+                    dt.Kind == DateTimeKind.Unspecified)
+                {
+                    property.CurrentValue = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+                }
+            }
+        }
+        
+        return await base.SaveChangesAsync(ct);
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);       

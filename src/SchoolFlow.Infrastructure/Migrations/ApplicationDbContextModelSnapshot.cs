@@ -32,19 +32,19 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateDebut")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateFin")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -58,7 +58,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -67,8 +67,8 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 206, DateTimeKind.Utc).AddTicks(3693),
+                            Id = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 2, 208, DateTimeKind.Utc).AddTicks(2682),
                             DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DateFin = new DateTime(2025, 6, 30, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsActive = true,
@@ -92,13 +92,13 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("EntityId")
                         .HasColumnType("uuid");
@@ -123,7 +123,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("UtilisateurId")
                         .HasColumnType("uuid");
@@ -152,7 +152,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
@@ -166,7 +166,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsArchived")
                         .HasColumnType("boolean");
@@ -185,7 +185,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -196,132 +196,132 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3d458761-1f99-4d89-bb10-e55145a43c9b"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("9f6788f4-a7b2-46bb-8e19-91cc42263bb1"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "CP",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9213),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(230),
                             IsArchived = false,
                             Niveau = "CP",
                             Nom = "CP"
                         },
                         new
                         {
-                            Id = new Guid("5b7977c3-3a53-44ec-8144-9279d2743188"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("00177369-1ae8-45f9-aa4e-822def27955d"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "CE1",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9242),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(261),
                             IsArchived = false,
                             Niveau = "CE1",
                             Nom = "CE1"
                         },
                         new
                         {
-                            Id = new Guid("5e3648b8-1ecd-4c50-9ccb-96d6ab8748d5"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("605ca321-32d0-4aae-9398-9e44d8f272a6"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "CE2",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9253),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(289),
                             IsArchived = false,
                             Niveau = "CE2",
                             Nom = "CE2"
                         },
                         new
                         {
-                            Id = new Guid("f7f2edc1-c130-4d4d-8e03-c3aff661c85f"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("b6f7277b-ef50-469a-a659-921c0446048c"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "CM1",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9285),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(325),
                             IsArchived = false,
                             Niveau = "CM1",
                             Nom = "CM1"
                         },
                         new
                         {
-                            Id = new Guid("e55206c2-d4e4-4830-9bd4-1de84ec1a01a"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("3e87fc8f-ef6e-4dfc-ae46-60ed2ef8ef1d"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "CM2",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9293),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(334),
                             IsArchived = false,
                             Niveau = "CM2",
                             Nom = "CM2"
                         },
                         new
                         {
-                            Id = new Guid("d51e956c-991d-473e-ad63-deeca3421457"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("ab8d07bb-31ca-461f-adc9-bda972bc4fa5"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "SIXIEME",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9537),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(435),
                             IsArchived = false,
                             Niveau = "Sixieme",
                             Nom = "6ème"
                         },
                         new
                         {
-                            Id = new Guid("c5a759a4-47c1-49b3-9e79-b1a6b5f1d5b6"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("8a53d050-0916-4dfe-a650-ca829b5ca069"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "CINQUIEME",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9593),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(482),
                             IsArchived = false,
                             Niveau = "Cinquieme",
                             Nom = "5ème"
                         },
                         new
                         {
-                            Id = new Guid("e02cd263-6608-4488-859a-e640e5a12a08"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("9abbfeb6-8919-4387-a620-2bec5aefc82d"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "QUATRIEME",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9617),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(494),
                             IsArchived = false,
                             Niveau = "Quatrieme",
                             Nom = "4ème"
                         },
                         new
                         {
-                            Id = new Guid("485288eb-599f-4cc4-b69b-94679798cfab"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("e78a72d3-aa28-4fa4-be87-be108899561d"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "TROISIEME",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9628),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(506),
                             IsArchived = false,
                             Niveau = "Troisieme",
                             Nom = "3ème"
                         },
                         new
                         {
-                            Id = new Guid("efaa9843-efbb-4d5a-9b03-a1c1200a8e82"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("b0e6ae13-2496-4d27-a17c-72abb751ba40"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "SECONDE",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9643),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(616),
                             IsArchived = false,
                             Niveau = "Seconde",
                             Nom = "2nde"
                         },
                         new
                         {
-                            Id = new Guid("77a717f6-a8ac-4fdf-85f5-743c0fbff36a"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("bec759e8-efa0-4cad-810c-6d1daeaf187e"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "PREMIERE",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9654),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(633),
                             IsArchived = false,
                             Niveau = "Premiere",
                             Nom = "1ère"
                         },
                         new
                         {
-                            Id = new Guid("dfb98b57-4a32-4e27-9133-231b31ad94f5"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
+                            Id = new Guid("b2042240-0d00-415f-ad6e-8fb96106adbd"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
                             CapaciteMax = 60,
                             Code = "TERMINALE",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(9670),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(643),
                             IsArchived = false,
                             Niveau = "Terminale",
                             Nom = "Tle"
@@ -344,7 +344,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
@@ -356,13 +356,13 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateInscription")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateNaissance")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("FamilleId")
                         .HasColumnType("uuid");
@@ -412,7 +412,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -443,13 +443,13 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("EmailMere")
                         .HasColumnType("text");
@@ -503,7 +503,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Ville")
                         .IsRequired()
@@ -525,7 +525,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
@@ -534,10 +534,10 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateEcheance")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("EleveId")
                         .HasColumnType("uuid");
@@ -563,7 +563,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -586,7 +586,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
@@ -600,7 +600,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsArchived")
                         .HasColumnType("boolean");
@@ -611,7 +611,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -628,7 +628,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
@@ -637,7 +637,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("EleveId")
                         .HasColumnType("uuid");
@@ -660,7 +660,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal>("Valeur")
                         .HasPrecision(5, 2)
@@ -687,7 +687,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
@@ -696,10 +696,10 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DatePaiement")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("EnregistrePar")
                         .HasColumnType("uuid");
@@ -728,7 +728,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -755,19 +755,19 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateDebut")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateFin")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsArchived")
                         .HasColumnType("boolean");
@@ -785,7 +785,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -796,9 +796,9 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("815cb673-33b7-4a2c-9ee6-2e6ef7e3aff2"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 206, DateTimeKind.Utc).AddTicks(4246),
+                            Id = new Guid("a6b92551-0982-438d-ace8-3e415b925a53"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 2, 208, DateTimeKind.Utc).AddTicks(3332),
                             DateDebut = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DateFin = new DateTime(2024, 12, 15, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsArchived = false,
@@ -808,9 +808,9 @@ namespace SchoolFlow.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("963eb957-0ddc-424f-9bd9-a24d22be6b65"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 206, DateTimeKind.Utc).AddTicks(4255),
+                            Id = new Guid("8cbbf1e5-c55f-44ac-ac00-d23826fca666"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 2, 208, DateTimeKind.Utc).AddTicks(3341),
                             DateDebut = new DateTime(2025, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
                             DateFin = new DateTime(2025, 3, 31, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsArchived = false,
@@ -820,9 +820,9 @@ namespace SchoolFlow.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("4dd1d48c-5b19-4541-b34c-4bbef93a9759"),
-                            AnneeScolaireId = new Guid("3788567f-f9cb-47f3-8779-29ba4bbda764"),
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 206, DateTimeKind.Utc).AddTicks(4260),
+                            Id = new Guid("7f55028a-1323-4b40-a7ec-d253f01625b3"),
+                            AnneeScolaireId = new Guid("fcc3f2ef-a2e1-453f-9282-0f702508570e"),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 2, 208, DateTimeKind.Utc).AddTicks(3347),
                             DateDebut = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DateFin = new DateTime(2025, 6, 30, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsArchived = false,
@@ -842,7 +842,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
@@ -857,7 +857,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -884,7 +884,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -893,10 +893,10 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a84b52b7-79f6-47ea-b5b8-852e75a8ccd7"),
+                            Id = new Guid("4a67847b-41f7-4dcd-aa35-32330bab9c07"),
                             Categorie = "Inscription",
                             Code = "INSC",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 394, DateTimeKind.Utc).AddTicks(896),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(1884),
                             GenerationAutomatique = true,
                             IsArchived = false,
                             IsObligatoire = true,
@@ -906,10 +906,10 @@ namespace SchoolFlow.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c0cb0248-510c-469b-829f-80e84954c760"),
+                            Id = new Guid("93637d31-7703-4a9a-8074-a4e4b0d9611c"),
                             Categorie = "Scolarite",
                             Code = "SCOL",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 394, DateTimeKind.Utc).AddTicks(908),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(1894),
                             Description = "Frais de scolarité trimestriel",
                             GenerationAutomatique = true,
                             IsArchived = false,
@@ -920,10 +920,10 @@ namespace SchoolFlow.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7369786d-688d-4567-8077-fca4a56c1d0d"),
+                            Id = new Guid("f65de0a1-1d13-4fd2-9c09-8617a46476aa"),
                             Categorie = "Cantine",
                             Code = "CANT",
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 394, DateTimeKind.Utc).AddTicks(916),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 547, DateTimeKind.Utc).AddTicks(1909),
                             Description = "Frais de cantine mensuel",
                             GenerationAutomatique = false,
                             IsArchived = false,
@@ -944,13 +944,13 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -967,10 +967,10 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime?>("LockedUntil")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Nom")
                         .IsRequired()
@@ -995,7 +995,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -1012,56 +1012,56 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bdd7b3e0-207c-4971-9daf-adaa1cab13d7"),
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 519, DateTimeKind.Utc).AddTicks(885),
+                            Id = new Guid("70a0836d-bde0-4ef1-936a-3918f91b21ed"),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 2, 587, DateTimeKind.Utc).AddTicks(7537),
                             Email = "admin@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Administrateur",
-                            PasswordHash = "$2a$11$yFAzr72u0K4v1h/0Ov.Qcuat/1IUbr1cILHMYtq/Q1pYXj9O/WAiC",
+                            PasswordHash = "$2a$11$YGqNP90LbqbZgI5pJ0Y8zeN0k7YbmrkC5Fk1TWUnEeWO8YbXK6f/2",
                             Prenom = "Système",
                             Role = "Admin",
                             Username = "admin"
                         },
                         new
                         {
-                            Id = new Guid("eee4d866-e0f1-40f5-8338-6b74b618270d"),
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 32, 809, DateTimeKind.Utc).AddTicks(4583),
+                            Id = new Guid("5bf789b9-d9b9-4811-9cec-f362d84aff41"),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 2, 930, DateTimeKind.Utc).AddTicks(4150),
                             Email = "directeur@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Durand",
-                            PasswordHash = "$2a$11$ledenWoLZC6bLPJ5jZoRdepLtojCoen3HxzZOGpoUYVHXfK06DBSC",
+                            PasswordHash = "$2a$11$gXAMsjt/Dmi2lTvl.wOrMOyU7QYBidnQ6aeTmhNN/2OTNoQuQY4/y",
                             Prenom = "Marie",
                             Role = "Directeur",
                             Username = "directeur"
                         },
                         new
                         {
-                            Id = new Guid("39fecf1d-e759-45b8-89a8-f6164ae87a77"),
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 96, DateTimeKind.Utc).AddTicks(1899),
+                            Id = new Guid("251a13fe-e29b-441b-a086-8375ca210cc7"),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 244, DateTimeKind.Utc).AddTicks(1028),
                             Email = "comptable@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Martin",
-                            PasswordHash = "$2a$11$CARvhJpSYWcRM4Bb7hDqE.XT6.PYgiS.Mzhfamy0eogKMdDiloBMe",
+                            PasswordHash = "$2a$11$2EmB5T8DQOOKhh7WTb369O6Lmo6Gm9mdrJJp.hhm43eUJlmnst9Wa",
                             Prenom = "Sophie",
                             Role = "Comptable",
                             Username = "comptable"
                         },
                         new
                         {
-                            Id = new Guid("6f57a332-7a39-4f85-ab09-35fcd925f449"),
-                            CreatedAt = new DateTime(2026, 3, 3, 22, 31, 33, 393, DateTimeKind.Utc).AddTicks(8518),
+                            Id = new Guid("f6edb4a1-b142-47c7-bf3c-df195e44085f"),
+                            CreatedAt = new DateTime(2026, 3, 5, 8, 51, 3, 546, DateTimeKind.Utc).AddTicks(9442),
                             Email = "secretaire@schoolflow.com",
                             FailedLoginAttempts = 0,
                             IsActive = true,
                             IsArchived = false,
                             Nom = "Leroy",
-                            PasswordHash = "$2a$11$iTk0IVpr4XpY1Il9jnkzlu8XDxvLuWIZbcXYAXjoAsD3pwfK7QLXi",
+                            PasswordHash = "$2a$11$XQjqhc/V9fqMCXC06xYhGu48y8jP5SR5zM47EN606n9pN9nQRRTiS",
                             Prenom = "Paul",
                             Role = "Secretaire",
                             Username = "secretaire"
@@ -1078,13 +1078,13 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ArchivedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("ArchivedBy")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("EleveId")
                         .HasColumnType("uuid");
@@ -1107,7 +1107,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
