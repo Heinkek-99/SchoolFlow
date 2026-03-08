@@ -91,6 +91,7 @@ public class EnregistrerPaiementCommandHandler : IRequestHandler<EnregistrerPaie
     {
         // Récupérer tous les frais impayés de l'élève, triés par priorité
         var fraisImpayes = await _context.Frais
+            .Include(f => f.TypeFrais)
             .Where(f => f.EleveId == eleveId && !f.IsArchived)
             .OrderBy(f => f.DateEcheance)  // FIFO : plus ancien en premier
             .ThenBy(f => f.CreatedAt)
@@ -120,16 +121,18 @@ public class EnregistrerPaiementCommandHandler : IRequestHandler<EnregistrerPaie
 
             // Calculer le montant à imputer sur ce frais
             var montantAImputer = Math.Min(montantRestant, soldeRestantFrais);
+            
+            var libelleTypeFrais = frais.TypeFrais?.Libelle ?? "Frais inconnu";
 
-            // ✅ TRAÇABILITÉ : Créer la ventilation avec FraisId renseigné
+            // TRAÇABILITÉ : Créer la ventilation avec FraisId renseigné
             var ventilation = new VentilationPaiement
             {
                 Id = Guid.NewGuid(),
                 PaiementId = paiementId,
                 EleveId = eleveId,
-                FraisId = frais.Id,  // ✅ On garde la trace du frais imputé
+                FraisId = frais.Id,  // On garde la trace du frais imputé
                 MontantVentile = montantAImputer,
-                Remarque = remarque ?? $"Imputation automatique sur {frais.TypeFrais.Libelle}",
+                Remarque = remarque ?? $"Imputation automatique sur {libelleTypeFrais}",
                 CreatedAt = DateTime.UtcNow
             };
 
