@@ -231,6 +231,7 @@ app.UseSwaggerUI(options =>
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseStaticFiles(); // Pour servir les photos uploadées depuis wwwroot/uploads/photos/ (URL absolue retournée par LocalFileStorageService)
 
 app.UseAuthentication();
 app.UseAuthorization();
