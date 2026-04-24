@@ -18,6 +18,9 @@ public interface IApplicationDbContext
     DbSet<Note> Notes { get; }
     DbSet<Matiere> Matieres { get; }
     DbSet<AuditLog> AuditLogs { get; }
-    
+    DbSet<Ecole> Ecoles { get; }
+    DbSet<OutboxMessage> OutboxMessages { get; }
+
+
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

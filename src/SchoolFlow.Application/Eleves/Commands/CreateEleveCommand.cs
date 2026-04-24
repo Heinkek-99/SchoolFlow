@@ -17,6 +17,10 @@ public record CreateEleveCommand : IRequest<Result<CreateEleveResponse>>
     public Guid FamilleId { get; init; }
     public Guid ClasseId { get; init; }
     public string? PhotoPath { get; init; }
+    public string? Nationalite { get; init; }
+    public string? GroupeSanguin { get; init; }
+    public string? Allergies { get; init; }
+    public string? ContactUrgence { get; init; }
 }
 
 public record CreateEleveResponse(Guid EleveId, string Matricule);

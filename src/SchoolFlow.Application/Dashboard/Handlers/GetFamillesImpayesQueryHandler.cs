@@ -10,10 +10,12 @@ namespace SchoolFlow.Application.Dashboard.Handlers;
 public class GetFamillesImpayesQueryHandler : IRequestHandler<GetFamillesImpayesQuery, Result<List<FamilleImpayeDto>>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetFamillesImpayesQueryHandler(IApplicationDbContext context)
+    public GetFamillesImpayesQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<Result<List<FamilleImpayeDto>>> Handle(GetFamillesImpayesQuery request, CancellationToken ct)
@@ -37,8 +39,10 @@ public class GetFamillesImpayesQueryHandler : IRequestHandler<GetFamillesImpayes
         //     .ToListAsync(ct);
 
 
+        var ecoleId = _currentUser.EcoleId;
+
         var famillesQuery = _context.Familles
-            .Where(f => !f.IsArchived)
+            .Where(f => f.EcoleId == ecoleId && !f.IsArchived)
             .Include(f => f.Eleves.Where(e => !e.IsArchived))
             .ThenInclude(e => e.Frais.Where(fr => !fr.IsArchived))
             .AsSplitQuery()

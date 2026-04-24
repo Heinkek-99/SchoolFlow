@@ -1,185 +1,135 @@
-using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SchoolFlow.Application.Common.Interfaces;
 using SchoolFlow.Application.Common.Models;
 using SchoolFlow.Application.Paiements.Commands;
 using SchoolFlow.Domain.Entities;
-using SchoolFlow.Shared.Dtos;
 
 namespace SchoolFlow.Application.Paiements.Handlers;
 
-
-public class EnregistrerPaiementCommandHandler : IRequestHandler<EnregistrerPaiementCommand, Result<string>>
+/// <summary>
+/// Handler APRÈS refactoring.
+/// 
+/// AVANT (problème) :
+///   → ImputerPaiementSurEleve() avec 50 lignes de logique FIFO dans le Handler
+///   → Le Handler "pense" — il décide comment imputer
+///
+/// APRÈS (correct) :
+///   → Le Handler orchestre : Charger → Appeler Domain → Sauvegarder
+///   → La logique FIFO est dans Paiement.AppliquerVentilation()
+///   → Les Domain Events sont levés dans le Domain, publiés ici après Save
+///
+/// Pattern : Load → Act → Save → Publish Events
+/// </summary>
+public class EnregistrerPaiementCommandHandler 
+    : IRequestHandler<EnregistrerPaiementCommand, Result<string>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IPublisher _publisher; // MediatR IPublisher pour les domain events
+    private readonly ICurrentUserService _currentUser;
 
-    public EnregistrerPaiementCommandHandler(IApplicationDbContext context)
+    public EnregistrerPaiementCommandHandler(
+        IApplicationDbContext context,
+        IPublisher publisher,
+        ICurrentUserService currentUser)
     {
         _context = context;
+        _publisher = publisher;
+        _currentUser = currentUser;
     }
 
-    public async Task<Result<string>> Handle(EnregistrerPaiementCommand request, CancellationToken ct)
+    public async Task<Result<string>> Handle(
+        EnregistrerPaiementCommand request, 
+        CancellationToken ct)
     {
-        
-        // 1. Vérifier que la famille existe
+        // ── ÉTAPE 1 : CHARGER ──────────────────────────────────────────────
         var famille = await _context.Familles
             .Include(f => f.Eleves)
-            .FirstOrDefaultAsync(f => f.Id == request.FamilleId, ct);
+            .FirstOrDefaultAsync(f => f.Id == request.FamilleId 
+                                   && f.EcoleId == _currentUser.EcoleId, ct);
 
-        if (famille == null)
-            return Result<string>.Failure("Famille introuvable");
+        if (famille is null)
+            return Result<string>.Failure("Famille introuvable.");
 
-        // 2. Vérifier que tous les élèves appartiennent à cette famille
+        // Vérifier appartenance des élèves
         var elevesIds = request.Ventilations.Select(v => v.EleveId).Distinct().ToList();
         var elevesInvalides = elevesIds.Except(famille.Eleves.Select(e => e.Id)).ToList();
 
-        if (elevesInvalides.Any())
-            return Result<string>.Failure("Certains élèves ne font pas partie de cette famille");
+        if (elevesInvalides.Count != 0)
+            return Result<string>.Failure("Certains élèves ne font pas partie de cette famille.");
 
-        // 3. Enregistrer le paiement
-        var numeroPaiement = await GenerateNumeroPaiementAsync(ct);
+        // Charger les frais pour chaque élève concerné
+        var tousLesEleves = await _context.Eleves
+            .Include(e => e.Frais)
+                .ThenInclude(f => f.TypeFrais)
+            .Where(e => elevesIds.Contains(e.Id))
+            .ToListAsync(ct);
 
-        var paiement = new Paiement
-        {
-            Id = Guid.NewGuid(),
-            NumeroPaiement = numeroPaiement,
-            FamilleId = request.FamilleId,
-            MontantTotal = request.MontantTotal,
-            DatePaiement = request.DatePaiement,
-            ModePaiement = request.ModePaiement,
-            Reference = request.Reference,
-            Commentaire = request.Commentaire,
-            EnregistrePar = request.EnregistrePar,
-            CreatedAt = DateTime.UtcNow
-        };
+        // ── ÉTAPE 2 : AGIR (le Domain fait le travail) ──────────────────────
+        var numeroPaiement = await GenererNumeroPaiementAsync(ct);
+
+        var paiement = Paiement.Creer(
+            ecoleId: _currentUser.EcoleId,
+            numeroPaiement: numeroPaiement,
+            familleId: request.FamilleId,
+            montantTotal: request.MontantTotal,
+            datePaiement: request.DatePaiement,
+            modePaiement: request.ModePaiement,
+            enregistrePar: _currentUser.UserId ?? Guid.Empty,
+            reference: request.Reference,
+            commentaire: request.Commentaire
+        );
 
         _context.Paiements.Add(paiement);
 
-        // Créer ventilations
-        foreach (var ventDto in request.Ventilations)
+        // Déléguer la ventilation au Domain
+        try
         {
-             var resultatImputation = await ImputerPaiementSurEleve(
-                paiement.Id,
-                ventDto.EleveId,
-                ventDto.Montant,
-                ventDto.Remarque,
-                ct
-            );
-
-            if (!resultatImputation.IsSuccess)
+            foreach (var ventDto in request.Ventilations)
             {
-                var errorMessage = resultatImputation.Error ?? "Erreur inconnue lors de l'imputation du paiement";
-                return Result<string>.Failure(errorMessage);
+                var eleve = tousLesEleves.First(e => e.Id == ventDto.EleveId);
+                var fraisOrdonnes = eleve.Frais
+                    .Where(f => !f.IsArchived)
+                    .OrderBy(f => f.DateEcheance)
+                    .ThenBy(f => f.CreatedAt);
+
+                // 🎯 TOUTE la logique FIFO est dans le Domain
+                paiement.AppliquerVentilation(ventDto.EleveId, ventDto.Montant, fraisOrdonnes);
             }
         }
+        catch (InvalidOperationException ex)
+        {
+            return Result<string>.Failure(ex.Message);
+        }
 
+        // ── ÉTAPE 3 : SAUVEGARDER ───────────────────────────────────────────
         await _context.SaveChangesAsync(ct);
+
+        // ── ÉTAPE 4 : PUBLIER LES DOMAIN EVENTS ────────────────────────────
+        // Les events ont été collectés dans le domain pendant l'Act.
+        // On les publie ICI, après le commit, pour garantir la cohérence.
+        foreach (var domainEvent in paiement.DomainEvents)
+            await _publisher.Publish(domainEvent, ct);
+
+        paiement.ClearDomainEvents();
 
         return Result<string>.Success(numeroPaiement);
     }
 
-    /// <summary>
-    /// Impute un montant sur les frais impayés d'un élève (stratégie FIFO)
-    /// </summary>
-    private async Task<Result<bool>> ImputerPaiementSurEleve(
-        Guid paiementId,
-        Guid eleveId,
-        decimal montant,
-        string? remarque,
-        CancellationToken ct)
-    {
-        // Récupérer tous les frais impayés de l'élève, triés par priorité
-        var fraisImpayes = await _context.Frais
-            .Include(f => f.TypeFrais)
-            .Where(f => f.EleveId == eleveId && !f.IsArchived)
-            .OrderBy(f => f.DateEcheance)  // FIFO : plus ancien en premier
-            .ThenBy(f => f.CreatedAt)
-            .ToListAsync(ct);
-
-        if (!fraisImpayes.Any())
-        {
-            return Result<bool>.Failure(
-                $"Aucun frais trouvé pour l'élève. " +
-                "Créez d'abord des frais avant d'enregistrer un paiement."
-            );
-        }
-
-        var montantRestant = montant;
-        var ventilationsCreees = 0;
-
-        // Imputer le montant sur les frais (FIFO)
-        foreach (var frais in fraisImpayes)
-        {
-            if (montantRestant <= 0.01m)
-                break;
-
-            var soldeRestantFrais = frais.Montant - frais.MontantPaye;
-
-            if (soldeRestantFrais <= 0.01m)
-                continue; // Frais déjà soldé, passer au suivant
-
-            // Calculer le montant à imputer sur ce frais
-            var montantAImputer = Math.Min(montantRestant, soldeRestantFrais);
-            
-            var libelleTypeFrais = frais.TypeFrais?.Libelle ?? "Frais inconnu";
-
-            // TRAÇABILITÉ : Créer la ventilation avec FraisId renseigné
-            var ventilation = new VentilationPaiement
-            {
-                Id = Guid.NewGuid(),
-                PaiementId = paiementId,
-                EleveId = eleveId,
-                FraisId = frais.Id,  // On garde la trace du frais imputé
-                MontantVentile = montantAImputer,
-                Remarque = remarque ?? $"Imputation automatique sur {libelleTypeFrais}",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.VentilationsPaiement.Add(ventilation);
-
-            // Mettre à jour le montant payé du frais
-            frais.MontantPaye += montantAImputer;
-            montantRestant -= montantAImputer;
-            ventilationsCreees++;
-        }
-
-        // Vérifier si tout le montant a été imputé
-        if (montantRestant > 0.01m)
-        {
-            var soldeTotalEleve = fraisImpayes.Sum(f => f.Montant - f.MontantPaye);
-            return Result<bool>.Failure(
-                $"Montant excédentaire de {montantRestant:N0} FCFA pour l'élève. " +
-                $"Solde restant de l'élève : {soldeTotalEleve:N0} FCFA. " +
-                "Réduisez le montant ou créez des frais supplémentaires."
-            );
-        }
-
-        if (ventilationsCreees == 0)
-        {
-            return Result<bool>.Failure(
-                "Aucune ventilation n'a été créée. Tous les frais de l'élève sont déjà payés."
-            );
-        }
-
-        return Result<bool>.Success(true);
-    }
-
-    private async Task<string> GenerateNumeroPaiementAsync(CancellationToken ct)
+    private async Task<string> GenererNumeroPaiementAsync(CancellationToken ct)
     {
         var year = DateTime.UtcNow.Year;
-        var lastPaiement = await _context.Paiements
+        var lastNum = await _context.Paiements
             .Where(p => p.NumeroPaiement.StartsWith($"PAY-{year}"))
             .OrderByDescending(p => p.NumeroPaiement)
             .Select(p => p.NumeroPaiement)
             .FirstOrDefaultAsync(ct);
 
-        int sequence = 1;
-        if (lastPaiement != null)
+        var sequence = 1;
+        if (lastNum is not null)
         {
-            var lastSeq = lastPaiement.Split('-').Last();
-            if (int.TryParse(lastSeq, out int num))
-                sequence = num + 1;
+            var lastSeq = lastNum.Split('-').Last();
+            if (int.TryParse(lastSeq, out var num)) sequence = num + 1;
         }
 
         return $"PAY-{year}-{sequence:D5}";

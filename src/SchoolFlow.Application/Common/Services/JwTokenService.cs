@@ -32,10 +32,12 @@ public class JwtTokenService : IJwtTokenService
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
             new Claim(JwtRegisteredClaimNames.GivenName, user.Prenom),
             new Claim(JwtRegisteredClaimNames.FamilyName, user.Nom),
             new Claim("role", user.Role.ToString()),
+            new Claim("ecoleId", user.EcoleId?.ToString() ?? string.Empty),
+            new Claim("nomEcole", user.Role == Role.SuperAdmin ? "SchoolFlow HQ" : user.Ecole?.Nom ?? string.Empty),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };

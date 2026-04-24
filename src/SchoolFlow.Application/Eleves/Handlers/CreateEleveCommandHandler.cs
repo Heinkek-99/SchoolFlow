@@ -1,4 +1,3 @@
-namespace SchoolFlow.Application.Eleves.Handlers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SchoolFlow.Application.Common.Interfaces;
@@ -6,147 +5,198 @@ using SchoolFlow.Application.Common.Models;
 using SchoolFlow.Application.Eleves.Commands;
 using SchoolFlow.Domain.Entities;
 
-public class CreateEleveCommandHandler : IRequestHandler<CreateEleveCommand, Result<CreateEleveResponse>>
+namespace SchoolFlow.Application.Eleves.Handlers;
+
+public class CreateEleveCommandHandler
+    : IRequestHandler<CreateEleveCommand, Result<CreateEleveResponse>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public CreateEleveCommandHandler(IApplicationDbContext context)
+    public CreateEleveCommandHandler(
+        IApplicationDbContext context,
+        ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
-    public async Task<Result<CreateEleveResponse>> Handle(CreateEleveCommand request, CancellationToken ct)
+    public async Task<Result<CreateEleveResponse>> Handle(
+        CreateEleveCommand request, CancellationToken ct)
     {
-        // Vérifier famille existe
-        var familleExists = await _context.Familles.AnyAsync(f => f.Id == request.FamilleId, ct);
-        if (!familleExists)
-            return Result<CreateEleveResponse>.Failure("Famille introuvable");
+        var ecoleId = _currentUser.EcoleId;  // ← MULTI-TENANT
 
-        // Vérifier classe existe
+        // ── 1. VÉRIFICATIONS ────────────────────────────────────────────────
+        var famille = await _context.Familles
+            .FirstOrDefaultAsync(f => f.Id == request.FamilleId
+                                   && f.EcoleId == ecoleId, ct);
+
+        if (famille is null)
+            return Result<CreateEleveResponse>.Failure("Famille introuvable.");
+
         var classe = await _context.Classes
             .Include(c => c.AnneeScolaire)
-            .FirstOrDefaultAsync(c => c.Id == request.ClasseId, ct);
-        
-        if (classe == null)
-            return Result<CreateEleveResponse>.Failure("Classe introuvable");
+            .FirstOrDefaultAsync(c => c.Id == request.ClasseId
+                                   && c.EcoleId == ecoleId, ct);
 
-        // Générer matricule unique
-        var matricule = await GenerateMatriculeAsync(ct);
+        if (classe is null)
+            return Result<CreateEleveResponse>.Failure("Classe introuvable.");
 
-        // Vérifier si le matricule existe déjà
-        if (await _context.Eleves.AnyAsync(e => e.Matricule == matricule, ct))
-            return Result<CreateEleveResponse>.Failure("Le matricule généré existe déjà.");
+        // ── 2. GÉNÉRER MATRICULE ────────────────────────────────────────────
+        var matricule = await GenererMatriculeAsync(ecoleId, ct);
 
-        var eleve = new Eleve
-        {
-            Matricule = matricule,
-            Nom = request.Nom,
-            Prenom = request.Prenom,
-            DateNaissance = request.DateNaissance,
-            LieuNaissance = request.LieuNaissance,
-            Sexe = request.Sexe,
-            FamilleId = request.FamilleId,
-            ClasseId = request.ClasseId,
-            AnneeScolaireId = classe.AnneeScolaireId,
-            PhotoPath = request.PhotoPath,
-            Statut = StatutEleve.Actif,
-            DateInscription = DateTime.UtcNow
-        };
+        // ── 3. CRÉER L'ÉLÈVE (+ raise EleveInscritEvent) ────────────────────
+        var eleve = Eleve.Inscrire(
+            nom: request.Nom,
+            prenom: request.Prenom,
+            dateNaissance: request.DateNaissance,
+            lieuNaissance: request.LieuNaissance,
+            sexe: request.Sexe,
+            familleId: request.FamilleId,
+            classeId: request.ClasseId,
+            anneeScolaireId: classe.AnneeScolaireId,
+            ecoleId: ecoleId,
+            matricule: matricule,
+            photoPath: request.PhotoPath,
+            nationalite: request.Nationalite,
+            groupeSanguin: request.GroupeSanguin,
+            allergies: request.Allergies,
+            contactUrgence: request.ContactUrgence);
 
         _context.Eleves.Add(eleve);
+
+        // ── 4. SAUVEGARDER ──────────────────────────────────────────────────
         await _context.SaveChangesAsync(ct);
 
-        // Générer frais automatiques
-        await GenererFraisAutomatiquesAsync(eleve.Id, classe.Niveau, ct);
+        // ── 5. GÉNÉRER LES FRAIS AUTOMATIQUES ──────────────────────────────
+        // Fait APRÈS le premier save pour avoir l'EleveId
+        await GenererFraisAutomatiquesAsync(eleve.Id, ecoleId, classe.Niveau, classe.AnneeScolaireId, ct);
 
         return Result<CreateEleveResponse>.Success(
-            new CreateEleveResponse(eleve.Id, matricule)
-        );
+            new CreateEleveResponse(eleve.Id, matricule));
     }
 
-    private async Task<string> GenerateMatriculeAsync(CancellationToken ct)
+    // ─── HELPERS ────────────────────────────────────────────────────────────
+
+    private async Task<string> GenererMatriculeAsync(Guid ecoleId, CancellationToken ct)
     {
         var year = DateTime.UtcNow.Year;
+
+        // Préfixe école pour unicité inter-établissement
+        var prefix = $"EL{year}";
         int sequence = 1;
 
         var lastMatricule = await _context.Eleves
-            .Where(e => e.Matricule.StartsWith($"EL{year}"))
+            .Where(e => e.EcoleId == ecoleId && e.Matricule.StartsWith(prefix))
             .OrderByDescending(e => e.Matricule)
             .Select(e => e.Matricule)
             .FirstOrDefaultAsync(ct);
 
-        if (lastMatricule != null)
+        if (lastMatricule is not null)
         {
-            var lastSeq = lastMatricule.Substring(6); // "EL2025-00123" -> "00123"
-            if (int.TryParse(lastSeq, out int num))
+            var parts = lastMatricule.Split('-');
+            if (parts.Length == 2 && int.TryParse(parts[1], out var num))
                 sequence = num + 1;
         }
-        
+
         string newMatricule;
         do
         {
-            newMatricule = $"EL{year}-{sequence:D5}"; // EL2025-00001
+            newMatricule = $"{prefix}-{sequence:D5}";
             sequence++;
         } while (await _context.Eleves.AnyAsync(e => e.Matricule == newMatricule, ct));
 
         return newMatricule;
-
-        // return $"EL{year}-{sequence:D5}"; // EL2025-00001
     }
 
-    private async Task GenererFraisAutomatiquesAsync(Guid eleveId, Niveau niveau, CancellationToken ct)
+    private async Task GenererFraisAutomatiquesAsync(
+        Guid eleveId,
+        Guid ecoleId,
+        Niveau niveau,
+        Guid anneeScolaireId,
+        CancellationToken ct)
     {
+        // Charger les types de frais auto de CETTE école uniquement
         var typesFraisAuto = await _context.TypeFrais
-            .Where(t => t.GenerationAutomatique && !t.IsArchived)
+            .Where(t => t.EcoleId == ecoleId      // ← MULTI-TENANT
+                     && t.GenerationAutomatique
+                     && !t.IsArchived)
             .ToListAsync(ct);
+
+        if (!typesFraisAuto.Any()) return;
 
         var anneeScolaire = await _context.AnneeScolaires
             .Include(a => a.Periodes)
-            .FirstOrDefaultAsync(a => a.IsActive, ct);
+            .FirstOrDefaultAsync(a => a.Id == anneeScolaireId && a.IsActive, ct);
 
-        if (anneeScolaire == null) return;
+        if (anneeScolaire is null) return;
 
         var fraisListe = new List<Frais>();
 
         foreach (var typeFrais in typesFraisAuto)
         {
-            if (!typeFrais.MontantsParNiveau.TryGetValue(niveau, out decimal montant))
+            if (!typeFrais.MontantsParNiveau.TryGetValue(niveau, out var montant))
                 continue;
 
             if (typeFrais.Categorie == CategorieFrais.Inscription)
             {
-                // Frais unique
+                // Frais unique à l'inscription
                 fraisListe.Add(new Frais
                 {
+                    EcoleId = ecoleId,
                     EleveId = eleveId,
                     TypeFraisId = typeFrais.Id,
                     Montant = montant,
-                    DateEcheance = DateTime.UtcNow.AddDays(30)
+                    DateEcheance = DateTime.UtcNow.AddDays(30),
+                    Remarques = "Frais d'inscription — généré automatiquement"
                 });
             }
             else if (typeFrais.Categorie == CategorieFrais.Scolarite)
             {
-                // Frais trimestriels
+                // Frais répartis sur les trimestres
                 var trimestres = anneeScolaire.Periodes
                     .Where(p => p.Type == TypePeriode.Trimestre)
                     .OrderBy(p => p.Numero)
                     .ToList();
 
-                foreach (var trimestre in trimestres)
+                if (trimestres.Any())
                 {
+                    var montantParTrimestre = Math.Round(montant / trimestres.Count, 0);
+
+                    foreach (var trimestre in trimestres)
+                    {
+                        fraisListe.Add(new Frais
+                        {
+                            EcoleId = ecoleId,
+                            EleveId = eleveId,
+                            TypeFraisId = typeFrais.Id,
+                            PeriodeId = trimestre.Id,
+                            Montant = montantParTrimestre,
+                            DateEcheance = trimestre.DateDebut.AddDays(15),
+                            Remarques = $"Scolarité {trimestre.Libelle} — généré automatiquement"
+                        });
+                    }
+                }
+                else
+                {
+                    // Pas de trimestres → frais annuel unique
                     fraisListe.Add(new Frais
                     {
+                        EcoleId = ecoleId,
                         EleveId = eleveId,
                         TypeFraisId = typeFrais.Id,
-                        PeriodeId = trimestre.Id,
-                        Montant = montant / 3, // 90K / 3 = 30K par trimestre
-                        DateEcheance = trimestre.DateFin.AddDays(-15)
+                        Montant = montant,
+                        DateEcheance = DateTime.UtcNow.AddDays(60),
+                        Remarques = "Scolarité annuelle — généré automatiquement"
                     });
                 }
             }
         }
 
-        _context.Frais.AddRange(fraisListe);
-        await _context.SaveChangesAsync(ct);
+        if (fraisListe.Any())
+        {
+            _context.Frais.AddRange(fraisListe);
+            await _context.SaveChangesAsync(ct);
+        }
     }
 }

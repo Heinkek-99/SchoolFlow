@@ -10,10 +10,12 @@ namespace SchoolFlow.Application.Classes.Handlers;
 public class GetClasseByIdQueryHandler : IRequestHandler<GetClasseByIdQuery, Result<ClasseDetailDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetClasseByIdQueryHandler(IApplicationDbContext context)
+    public GetClasseByIdQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<Result<ClasseDetailDto>> Handle(GetClasseByIdQuery request, CancellationToken ct)
@@ -24,7 +26,7 @@ public class GetClasseByIdQueryHandler : IRequestHandler<GetClasseByIdQuery, Res
             .Include(c => c.Eleves.Where(e => !e.IsArchived && e.Statut == Domain.Entities.StatutEleve.Actif))
                 .ThenInclude(e => e.Frais.Where(f => !f.IsArchived))
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == request.Id, ct);
+            .FirstOrDefaultAsync(c => c.Id == request.Id && c.EcoleId == _currentUser.EcoleId, ct);
 
         if (classe == null)
             return Result<ClasseDetailDto>.Failure("Classe introuvable");

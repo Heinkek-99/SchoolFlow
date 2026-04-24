@@ -3,6 +3,8 @@ using SchoolFlow.Application.Common.Interfaces;
 using SchoolFlow.Application.Common.Models;
 using SchoolFlow.Application.Familles.Commands;
 
+namespace SchoolFlow.Application.Familles.Handlers;
+
 public class UpdateFamilleCommandHandler : IRequestHandler<UpdateFamilleCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
@@ -19,39 +21,21 @@ public class UpdateFamilleCommandHandler : IRequestHandler<UpdateFamilleCommand,
         if (famille == null)
             return Result<bool>.Failure("Famille introuvable");
 
-        // Père
-        if (!string.IsNullOrWhiteSpace(request.NomPere))
-            famille.NomPere = request.NomPere;
-        if (request.PrenomPere != null)
-            famille.PrenomPere = request.PrenomPere;
-        if (!string.IsNullOrWhiteSpace(request.TelephonePere))
-            famille.TelephonePere = request.TelephonePere;
-        if (!string.IsNullOrWhiteSpace(request.EmailPere))
-            famille.EmailPere = request.EmailPere;
+        famille.MettreAJour(
+            nomPere: request.NomPere ?? famille.NomPere,
+            prenomPere: request.PrenomPere ?? famille.PrenomPere,
+            telephonePere: request.TelephonePere ?? famille.TelephonePere,
+            emailPere: request.EmailPere ?? famille.EmailPere,
+            nomMere: request.NomMere ?? famille.NomMere,
+            prenomMere: request.PrenomMere ?? famille.PrenomMere,
+            telephoneMere: request.TelephoneMere ?? famille.TelephoneMere,
+            adresse: request.Adresse ?? famille.Adresse,
+            ville: request.Ville ?? famille.Ville,
+            quartier: famille.QuartierCommune,
+            telephonePrincipal: request.TelephonePrincipal ?? famille.TelephonePrincipal
+        );
 
-        // Mère
-        if (request.NomMere != null)
-            famille.NomMere = request.NomMere;
-        if (request.PrenomMere != null)
-            famille.PrenomMere = request.PrenomMere;
-        if (!string.IsNullOrWhiteSpace(request.TelephoneMere))
-            famille.TelephoneMere = request.TelephoneMere;
-        if (!string.IsNullOrWhiteSpace(request.EmailMere))
-            famille.EmailMere = request.EmailMere;
-
-        // Contact principal
-        if (!string.IsNullOrWhiteSpace(request.TelephonePrincipal))
-            famille.TelephonePrincipal = request.TelephonePrincipal;
-
-        // Adresse
-        if (request.Adresse != null)
-            famille.Adresse = request.Adresse;
-        if (request.Ville != null)
-            famille.Ville = request.Ville;
-
-        famille.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync(ct);
-
         return Result<bool>.Success(true);
     }
 }
