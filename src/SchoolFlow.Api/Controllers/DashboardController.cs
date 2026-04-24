@@ -23,7 +23,7 @@ public class DashboardController : BaseApiController
         var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? Guid.Empty.ToString());
         var role = User.FindFirst("role")?.Value ?? "Secretaire";
         
-        var result = await Mediator.Send(new GetDashboardStatsQuery(userId, role));
+        var result = await Mediator.Send(new GetDashboardStatsQuery());
         return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Error);
     }
 

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SchoolFlow.Api.Middleware;
 using SchoolFlow.Application;
 using SchoolFlow.Infrastructure;
 using SchoolFlow.Infrastructure.Data;
@@ -92,6 +93,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("SuperAdmin"));
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("DirecteurOrAdmin", policy => policy.RequireRole("Admin", "Directeur"));
     options.AddPolicy("ComptableAccess", policy => policy.RequireRole("Admin", "Directeur", "Comptable"));
@@ -170,28 +172,7 @@ builder.Services.AddSwaggerGen(options =>
 // ============================================
 // 7. HEALTHCHECKS
 // ============================================ 
-builder.Services.AddHealthChecks()
-    // .AddDbContextCheck<ApplicationDbContext>("Database");
-     .AddCheck("Database", () =>
-    {
-        using var scope = builder.Services.BuildServiceProvider().CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        // using (var scope = app.Services.CreateScope())
-        // {
-        //     var services = scope.ServiceProvider;
-        //     var dbContext = services.GetRequiredService<ApplicationDbContext>();
-        //     var logger = services.GetRequiredService<ILogger<Program>>();
-    
-        try
-        {
-            dbContext.Database.CanConnect();
-            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("Database connection OK");
-        }
-        catch (Exception ex)
-        {
-            return Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy("Database connection failed", ex);
-        }
-    });
+builder.Services.AddHealthChecks();
 // ============================================
 // 7. BUILD APP
 // ============================================
@@ -234,6 +215,7 @@ app.UseCors("AllowAll");
 app.UseStaticFiles(); // Pour servir les photos uploadées depuis wwwroot/uploads/photos/ (URL absolue retournée par LocalFileStorageService)
 
 app.UseAuthentication();
+app.UseMiddleware<JwtClaimsMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
@@ -246,15 +228,19 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    
+
     try
     {
         await dbContext.Database.MigrateAsync();
         Log.Information("✅ Database migrations applied successfully");
+
+        var seeder = scope.ServiceProvider.GetRequiredService<SchoolFlow.Infrastructure.DatabaseSeeder>();
+        await seeder.SeedAsync();
+        Log.Information("✅ Database seeding completed");
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "❌ [ERROR] Error applying database migrations");
+        Log.Error(ex, "❌ [ERROR] Error applying database migrations or seeding");
     }
 }
 
