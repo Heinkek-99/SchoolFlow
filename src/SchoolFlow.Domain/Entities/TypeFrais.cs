@@ -1,22 +1,22 @@
 namespace SchoolFlow.Domain.Entities;
 
-public class TypeFrais : BaseEntity
+public class TypeFrais : TenantEntity  // ← était BaseEntity
 {
-    public string Code { get; set; } = string.Empty; // "SCOL_T1"
-    public string Libelle { get; set; } = string.Empty; // "Scolarité Trimestre 1"
+    public string Code { get; set; } = string.Empty;
+    public string Libelle { get; set; } = string.Empty;
     public string? Description { get; set; }
     public CategorieFrais Categorie { get; set; }
     public bool IsRecurrent { get; set; } = false;
     public bool IsObligatoire { get; set; } = true;
     public bool GenerationAutomatique { get; set; } = true;
-    
-    // Montants par niveau (JSON serialized)
+ 
+    // Montants configurés par niveau pour cette école
     public Dictionary<Niveau, decimal> MontantsParNiveau { get; set; } = new();
-    
+ 
     // Navigation
     public ICollection<Frais> Frais { get; set; } = new List<Frais>();
 }
-
+ 
 public enum CategorieFrais
 {
     Inscription = 1,
@@ -26,3 +26,4 @@ public enum CategorieFrais
     Transport = 5,
     Annexe = 99
 }
+ 

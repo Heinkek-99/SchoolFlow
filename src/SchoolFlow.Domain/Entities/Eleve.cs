@@ -1,6 +1,6 @@
 namespace SchoolFlow.Domain.Entities;
 
-public class Eleve : BaseEntity
+public class Eleve : TenantEntity
 {
     public string Matricule { get; set; } = string.Empty; // EL2025-00123
     public string Nom { get; set; } = string.Empty;
@@ -94,6 +94,41 @@ public class Eleve : BaseEntity
     public AnneeScolaire? AnneeScolaire { get; set; } = null!;
     public ICollection<Frais> Frais { get; set; } = new List<Frais>();
     public ICollection<Note> Notes { get; set; } = new List<Note>();
+
+    public static Eleve Inscrire(
+        string nom, string prenom, DateTime dateNaissance, string lieuNaissance,
+        Sexe sexe, Guid familleId, Guid classeId, Guid anneeScolaireId,
+        Guid ecoleId, string matricule,
+        string? photoPath = null, string? nationalite = null,
+        string? groupeSanguin = null, string? allergies = null,
+        string? contactUrgence = null)
+    {
+        var eleve = new Eleve
+        {
+            EcoleId = ecoleId,
+            Matricule = matricule,
+            Nom = nom,
+            Prenom = prenom,
+            DateNaissance = dateNaissance,
+            LieuNaissance = lieuNaissance,
+            Sexe = sexe,
+            FamilleId = familleId,
+            ClasseId = classeId,
+            AnneeScolaireId = anneeScolaireId,
+            PhotoPath = photoPath,
+            Nationalite = nationalite ?? "Camerounaise",
+            GroupeSanguin = groupeSanguin,
+            Allergies = allergies,
+            ContactUrgence = contactUrgence,
+            Statut = StatutEleve.Actif,
+            DateInscription = DateTime.UtcNow
+        };
+
+        eleve.RaiseDomainEvent(new EleveInscritEvent(
+            eleve.Id, matricule, familleId, ecoleId, classeId, anneeScolaireId));
+
+        return eleve;
+    }
 }
 
 public enum Sexe
