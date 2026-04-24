@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SchoolFlow.Infrastructure.Data;
@@ -11,9 +12,11 @@ using SchoolFlow.Infrastructure.Data;
 namespace SchoolFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260424000611_V3_SuperAdminNullableEcoleId")]
+    partial class V3_SuperAdminNullableEcoleId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -932,7 +935,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid?>("EcoleId")
+                    b.Property<Guid>("EcoleId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Email")
@@ -1183,7 +1186,8 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasOne("SchoolFlow.Domain.Entities.Ecole", "Ecole")
                         .WithMany("Utilisateurs")
                         .HasForeignKey("EcoleId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Ecole");
                 });
