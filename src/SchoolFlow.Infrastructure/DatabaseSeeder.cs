@@ -39,7 +39,10 @@ public class DatabaseSeeder
 
         if (await _context.Ecoles.AnyAsync(ct))
         {
-            _logger.LogInformation("Base déjà seedée — skip.");
+            // La DB existe déjà — vérifier seulement les données manquantes critiques
+            await CorrigerDonneesManquantes(ct);
+            await NettoyerDonneesTestAsync(ct);
+            _logger.LogInformation("Base déjà seedée — vérification des données manquantes effectuée.");
             return;
         }
 
@@ -150,6 +153,9 @@ public class DatabaseSeeder
         };
         _context.TypeFrais.AddRange(tfInscription, tfScolarite);
         await _context.SaveChangesAsync(ct);
+
+        // ── MATIÈRES PAR DÉFAUT — École Victoire (Bilingue) ─────────────────
+        await SeedMatieresAsync(ecoleVictoire.Id, SousSysteme.Bilingue, ct);
 
         // ── FAMILLE NKOULOU ──────────────────────────────────────────────────
         var familleNkoulou = Famille.Creer(
@@ -287,10 +293,297 @@ public class DatabaseSeeder
 
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogInformation("Seed terminé — Victoire + Champions créés avec données de démo.");
+        _logger.LogInformation("""
+
+            ╔══════════════════════════════════════════════════════════════╗
+            ║              SCHOOLFLOW — COMPTES DE DÉMO                   ║
+            ╠══════════════╦══════════════════╦═════════════╦═════════════╣
+            ║ Username     ║ Mot de passe     ║ Rôle        ║ École       ║
+            ╠══════════════╬══════════════════╬═════════════╬═════════════╣
+            ║ superadmin   ║ SuperAdmin@2025  ║ SuperAdmin  ║ —           ║
+            ║ admin.vic... ║ Admin@2025       ║ Admin       ║ La Victoire ║
+            ║ secret.vic.. ║ Secr@2025        ║ Secrétaire  ║ La Victoire ║
+            ║ compt.vic... ║ Compt@2025       ║ Comptable   ║ La Victoire ║
+            ╚══════════════╩══════════════════╩═════════════╩═════════════╝
+            """);
     }
 
-    // ─── HELPERS ─────────────────────────────────────────────────────────────
+    // ─── CORRECTION ECOLE_ID CORROMPUS ───────────────────────────────────────────
+
+    public async Task CorrigerEcoleIdAsync(CancellationToken ct = default)
+    {
+        _logger.LogInformation("Vérification intégrité EcoleId...");
+
+        var ecoleVictoire = await _context.Ecoles
+            .FirstOrDefaultAsync(e => e.CodeEcole == "SF-VICTOIRE-001", ct);
+
+        if (ecoleVictoire is null)
+        {
+            _logger.LogWarning("École La Victoire introuvable — skip correction EcoleId.");
+            return;
+        }
+
+        var guid0 = Guid.Empty;
+
+        // Corriger Familles avec EcoleId = Guid.Empty
+        var familles = await _context.Familles
+            .IgnoreQueryFilters()
+            .Where(f => f.EcoleId == guid0)
+            .ToListAsync(ct);
+
+        _logger.LogInformation("Familles à corriger : {Count}", familles.Count);
+
+        foreach (var f in familles)
+        {
+            var eleveSource = await _context.Eleves
+                .Where(e => e.FamilleId == f.Id && e.EcoleId != guid0)
+                .Select(e => e.EcoleId)
+                .FirstOrDefaultAsync(ct);
+
+            f.EcoleId = eleveSource != Guid.Empty ? eleveSource : ecoleVictoire.Id;
+        }
+
+        if (familles.Count > 0)
+        {
+            await _context.SaveChangesAsync(ct);
+            _logger.LogInformation("{Count} famille(s) EcoleId corrigé(s)", familles.Count);
+        }
+
+        // Corriger TypeFrais avec EcoleId = Guid.Empty
+        var typesFrais = await _context.TypeFrais
+            .IgnoreQueryFilters()
+            .Where(t => t.EcoleId == guid0)
+            .ToListAsync(ct);
+
+        foreach (var tf in typesFrais)
+            tf.EcoleId = ecoleVictoire.Id;
+
+        if (typesFrais.Count > 0)
+        {
+            await _context.SaveChangesAsync(ct);
+            _logger.LogInformation("{Count} TypeFrais EcoleId corrigé(s)", typesFrais.Count);
+        }
+
+        // Corriger Utilisateurs avec EcoleId = Guid.Empty (hors SuperAdmin)
+        var utilisateurs = await _context.Utilisateurs
+            .IgnoreQueryFilters()
+            .Where(u => u.EcoleId == guid0 && u.Role != Role.SuperAdmin)
+            .ToListAsync(ct);
+
+        foreach (var u in utilisateurs)
+            u.EcoleId = ecoleVictoire.Id;
+
+        if (utilisateurs.Count > 0)
+        {
+            await _context.SaveChangesAsync(ct);
+            _logger.LogInformation("{Count} utilisateur(s) EcoleId corrigé(s)", utilisateurs.Count);
+        }
+
+        // Corriger AnneeScolaires avec EcoleId = Guid.Empty
+        var annees = await _context.AnneeScolaires
+            .IgnoreQueryFilters()
+            .Where(a => a.EcoleId == guid0)
+            .ToListAsync(ct);
+
+        foreach (var a in annees)
+            a.EcoleId = ecoleVictoire.Id;
+
+        if (annees.Count > 0)
+        {
+            await _context.SaveChangesAsync(ct);
+            _logger.LogInformation("{Count} AnneeScolaire(s) EcoleId corrigé(s)", annees.Count);
+        }
+
+        // Corriger Classes avec EcoleId = Guid.Empty
+        var classes = await _context.Classes
+            .IgnoreQueryFilters()
+            .Where(c => c.EcoleId == guid0)
+            .ToListAsync(ct);
+
+        foreach (var c in classes)
+            c.EcoleId = ecoleVictoire.Id;
+
+        if (classes.Count > 0)
+        {
+            await _context.SaveChangesAsync(ct);
+            _logger.LogInformation("{Count} classe(s) EcoleId corrigé(s)", classes.Count);
+        }
+
+        _logger.LogInformation("Correction EcoleId terminée.");
+    }
+
+    // ─── CORRECTION DONNÉES MANQUANTES ───────────────────────────────────────────
+
+    private async Task CorrigerDonneesManquantes(CancellationToken ct)
+    {
+        var ecoleVictoire = await _context.Ecoles
+            .FirstOrDefaultAsync(e => e.CodeEcole == "SF-VICTOIRE-001", ct);
+
+        if (ecoleVictoire is null) return;
+
+        // TypesFrais manquants pour La Victoire
+        if (!await _context.TypeFrais.AnyAsync(tf => tf.EcoleId == ecoleVictoire.Id, ct))
+        {
+            _logger.LogInformation("Création des TypesFrais manquants pour La Victoire...");
+
+            var montants = new Dictionary<Niveau, decimal>
+            {
+                { Niveau.CM2, 95_000 }, { Niveau.Sixieme, 120_000 },
+                { Niveau.Form1, 140_000 }, { Niveau.Terminale, 180_000 }
+            };
+
+            _context.TypeFrais.AddRange(
+                new TypeFrais
+                {
+                    EcoleId = ecoleVictoire.Id, Code = "INSCR", Libelle = "Frais d'inscription",
+                    Categorie = CategorieFrais.Inscription, IsObligatoire = true, GenerationAutomatique = true,
+                    MontantsParNiveau = montants.ToDictionary(k => k.Key, v => Math.Round(v.Value * 0.2m, 0))
+                },
+                new TypeFrais
+                {
+                    EcoleId = ecoleVictoire.Id, Code = "SCOL", Libelle = "Frais de scolarité",
+                    Categorie = CategorieFrais.Scolarite, IsObligatoire = true, IsRecurrent = true,
+                    GenerationAutomatique = true, MontantsParNiveau = montants
+                }
+            );
+            await _context.SaveChangesAsync(ct);
+        }
+
+        // Matières manquantes — pour TOUTES les écoles actives
+        var toutesEcoles = await _context.Ecoles
+            .Where(e => e.Statut == StatutEcole.Active)
+            .ToListAsync(ct);
+
+        foreach (var ecole in toutesEcoles)
+            await SeedMatieresAsync(ecole.Id, ecole.SousSysteme, ct);
+
+        // AnneeScolaire manquante ou inactive
+        if (!await _context.AnneeScolaires.AnyAsync(a => a.EcoleId == ecoleVictoire.Id && a.IsActive, ct))
+        {
+            var existante = await _context.AnneeScolaires
+                .FirstOrDefaultAsync(a => a.EcoleId == ecoleVictoire.Id, ct);
+
+            if (existante is null)
+            {
+                _logger.LogInformation("Création AnneeScolaire 2024-2025 manquante pour La Victoire...");
+                _context.AnneeScolaires.Add(new AnneeScolaire
+                {
+                    EcoleId = ecoleVictoire.Id, Libelle = "2024-2025",
+                    DateDebut = new DateTime(2024, 9, 2, 0, 0, 0, DateTimeKind.Utc),
+                    DateFin = new DateTime(2025, 7, 31, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                });
+                await _context.SaveChangesAsync(ct);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "AnneeScolaire '{Libelle}' existe pour La Victoire mais IsActive=false — activation...",
+                    existante.Libelle);
+                existante.IsActive = true;
+                await _context.SaveChangesAsync(ct);
+            }
+        }
+    }
+
+    private async Task SeedMatieresAsync(Guid ecoleId, SousSysteme sousSysteme, CancellationToken ct)
+    {
+        if (await _context.Matieres.AnyAsync(m => m.EcoleId == ecoleId, ct)) return;
+
+        (string Code, string Libelle, decimal Coeff)[] matieres = sousSysteme switch
+        {
+            SousSysteme.Francophone =>
+            [
+                ("MATH", "Mathématiques", 4m), ("FR",   "Français", 4m),
+                ("PC",   "Physique-Chimie", 3m), ("SVT", "Sciences de la Vie et de la Terre", 3m),
+                ("HG",   "Histoire-Géographie", 2m), ("ANG", "Anglais", 2m),
+                ("EPS",  "Éducation Physique", 1m), ("ICT", "Informatique", 1m),
+                ("EC",   "Économie", 2m), ("PHILO", "Philosophie", 2m)
+            ],
+            SousSysteme.Anglophone =>
+            [
+                ("MATH", "Mathematics", 4m), ("ENG", "English", 4m),
+                ("SCI",  "Science", 3m), ("HIST", "History", 2m),
+                ("GEO",  "Geography", 2m), ("FR",  "French", 2m),
+                ("ICT",  "ICT", 1m), ("PE",  "Physical Education", 1m)
+            ],
+            _ =>  // Bilingue
+            [
+                ("MATH", "Mathématiques / Mathematics", 4m), ("FR", "Français", 3m),
+                ("ENG",  "English", 3m), ("PC", "Physique-Chimie / Science", 3m),
+                ("SVT",  "Sciences de la Vie", 2m), ("HG", "Histoire-Géographie", 2m),
+                ("ICT",  "Informatique", 1m), ("EPS", "Éducation Physique", 1m)
+            ]
+        };
+
+        _context.Matieres.AddRange(matieres.Select(m => new Matiere
+        {
+            EcoleId = ecoleId,
+            Code = m.Code,
+            Libelle = m.Libelle,
+            Coefficient = m.Coeff,
+            SousSysteme = sousSysteme,
+            IsActive = true
+        }));
+
+        await _context.SaveChangesAsync(ct);
+        _logger.LogInformation("Matières seedées ({Count}) pour EcoleId={EcoleId}", matieres.Length, ecoleId);
+    }
+
+    private async Task NettoyerDonneesTestAsync(CancellationToken ct)
+    {
+        // Années scolaires de test
+        var anneesTest = await _context.AnneeScolaires
+            .Where(a => a.Libelle.Contains("-test-"))
+            .ToListAsync(ct);
+
+        if (anneesTest.Any())
+        {
+            _context.AnneeScolaires.RemoveRange(anneesTest);
+            await _context.SaveChangesAsync(ct);
+            _logger.LogInformation("Nettoyage: {Count} année(s) de test supprimée(s).", anneesTest.Count);
+        }
+
+        // Dédoublonner évaluations (garder la plus récente par classe+matière+période+année)
+        await _context.Database.ExecuteSqlRawAsync("""
+            DELETE FROM "Evaluations"
+            WHERE "Id" NOT IN (
+                SELECT "Id" FROM (
+                    SELECT DISTINCT ON ("ClasseId","MatiereId","PeriodeId","AnneeScolaireId") "Id"
+                    FROM "Evaluations"
+                    ORDER BY "ClasseId","MatiereId","PeriodeId","AnneeScolaireId","CreatedAt" DESC
+                ) kept
+            )
+            """, ct);
+
+        // Dédoublonner disciplines (garder la plus récente par élève+type+motif)
+        await _context.Database.ExecuteSqlRawAsync("""
+            DELETE FROM "Disciplines"
+            WHERE "Id" NOT IN (
+                SELECT "Id" FROM (
+                    SELECT DISTINCT ON ("EleveId","Type","Motif") "Id"
+                    FROM "Disciplines"
+                    ORDER BY "EleveId","Type","Motif","DateDiscipline" DESC
+                ) kept
+            )
+            """, ct);
+
+        // Dédoublonner examens (garder le plus récent par nom+année, cascades les inscriptions)
+        await _context.Database.ExecuteSqlRawAsync("""
+            DELETE FROM "Examens"
+            WHERE "Id" NOT IN (
+                SELECT "Id" FROM (
+                    SELECT DISTINCT ON ("Nom","AnneeScolaireId") "Id"
+                    FROM "Examens"
+                    ORDER BY "Nom","AnneeScolaireId","CreatedAt" DESC
+                ) kept
+            )
+            """, ct);
+
+        _logger.LogInformation("Nettoyage doublons test terminé.");
+    }
+
+    // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
     private static void SetEcoleProps(Ecole e,
         string nom, string codeEcole, TypeEtablissement type,
