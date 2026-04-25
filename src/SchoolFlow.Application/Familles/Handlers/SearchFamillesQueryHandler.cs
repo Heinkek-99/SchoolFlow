@@ -5,28 +5,34 @@ using SchoolFlow.Application.Common.Models;
 using SchoolFlow.Application.Familles.Queries;
 using SchoolFlow.Shared.Dtos;
 
-
 public class SearchFamillesQueryHandler : IRequestHandler<SearchFamillesQuery, Result<List<FamilleDto>>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public SearchFamillesQueryHandler(IApplicationDbContext context)
+    public SearchFamillesQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<Result<List<FamilleDto>>> Handle(SearchFamillesQuery request, CancellationToken ct)
     {
-        var query = request.Query.ToLower();
-        
+        var ecoleId = _currentUser.EcoleId;
+        if (ecoleId == Guid.Empty)
+            return Result<List<FamilleDto>>.Failure("Accès non autorisé : EcoleId manquant.");
+
+        var q = request.Query.ToLower();
+
         var familles = await _context.Familles
+            .Where(f => f.EcoleId == ecoleId)
+            .Where(f =>
+                f.NomPere.ToLower().Contains(q) ||
+                (f.PrenomPere != null && f.PrenomPere!.ToLower().Contains(q)) ||
+                f.TelephonePrincipal.Contains(q) ||
+                (f.TelephonePere != null && f.TelephonePere!.Contains(q)))
             .Include(f => f.Eleves.Where(e => !e.IsArchived))
                 .ThenInclude(e => e.Frais.Where(fr => !fr.IsArchived))
-            .Where(f => 
-                f.NomPere.ToLower().Contains(query) ||
-                (f.PrenomPere != null && f.PrenomPere!.ToLower().Contains(query)) ||
-                f.TelephonePrincipal.Contains(query) ||
-                (f.TelephonePere != null && f.TelephonePere!.Contains(query)))
             .OrderBy(f => f.NomPere)
             .Take(20)
             .AsNoTracking()
@@ -49,12 +55,13 @@ public class SearchFamillesQueryHandler : IRequestHandler<SearchFamillesQuery, R
                 totalDu,
                 totalPaye,
                 soldeGlobal,
-                CalculerStatutPaiement(totalDu, totalPaye)  
+                CalculerStatutPaiement(totalDu, totalPaye)
             );
         }).ToList();
 
         return Result<List<FamilleDto>>.Success(result);
     }
+
     private static string CalculerStatutPaiement(decimal totalDu, decimal totalPaye)
     {
         var solde = totalDu - totalPaye;

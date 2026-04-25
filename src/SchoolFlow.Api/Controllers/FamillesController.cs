@@ -4,12 +4,12 @@ using SchoolFlow.Application.Familles.Commands;
 using SchoolFlow.Application.Familles.Queries;
 using SchoolFlow.Shared.Dtos;
 
-namespace SchoolFlow.API.Controllers;
+namespace SchoolFlow.Api.Controllers;
 
 /// <summary>
 /// Gestion des familles
 /// </summary>
-[Authorize]
+[Authorize(Policy = "TenantAccess")]
 public class FamillesController : BaseApiController
 {
     /// <summary>
@@ -20,6 +20,8 @@ public class FamillesController : BaseApiController
     public async Task<IActionResult> GetAll([FromQuery] GetAllFamillesQuery query)
     {
         var result = await Mediator.Send(query);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
         return Ok(result.Data);
     }
 

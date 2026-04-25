@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SchoolFlow.Application.Paiements.Commands;
 using SchoolFlow.Application.Paiements.Queries;
 
-namespace SchoolFlow.API.Controllers;
+namespace SchoolFlow.Api.Controllers;
 
 /// <summary>
 /// Gestion des paiements

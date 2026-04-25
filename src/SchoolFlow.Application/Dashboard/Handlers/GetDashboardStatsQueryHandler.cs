@@ -8,6 +8,7 @@
 // ============================================================
 
 using MediatR;
+using Microsoft.Extensions.Logging;
 using SchoolFlow.Application.Common.Interfaces;
 using SchoolFlow.Application.Common.Models;
 using SchoolFlow.Application.Dashboard.Queries;
@@ -24,19 +25,26 @@ public class GetDashboardStatsQueryHandler
 {
     private readonly ISchoolFlowReadService _readService;
     private readonly ICurrentUserService _currentUser;
+    private readonly ILogger<GetDashboardStatsQueryHandler> _logger;
 
     public GetDashboardStatsQueryHandler(
         ISchoolFlowReadService readService,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        ILogger<GetDashboardStatsQueryHandler> logger)
     {
         _readService = readService;
         _currentUser = currentUser;
+        _logger = logger;
     }
 
     public async Task<Result<DashboardStats>> Handle(
         GetDashboardStatsQuery request, CancellationToken ct)
     {
         var ecoleId = _currentUser.EcoleId;
+        _logger.LogDebug("Dashboard EcoleId={EcoleId} IsSuperAdmin={IsSuperAdmin}", ecoleId, _currentUser.IsSuperAdmin);
+
+        if (ecoleId == Guid.Empty && !_currentUser.IsSuperAdmin)
+            return Result<DashboardStats>.Failure("Accès non autorisé : EcoleId manquant.");
 
         // 1 seul appel Dapper → 1 requête SQL avec sous-sélections
         var stats = await _readService.GetDashboardStatsAsync(ecoleId, ct);

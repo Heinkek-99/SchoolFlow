@@ -123,6 +123,16 @@ public class Ecole : BaseEntity
         UpdatedAt = DateTime.UtcNow;
     }
  
+    public void Suspendre(string raison)
+    {
+        if (Statut != StatutEcole.Active)
+            throw new InvalidOperationException("Seule une école active peut être suspendue.");
+
+        Statut = StatutEcole.Suspendue;
+        MotifRejet = raison;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public void MettreAJour(string? slogan, string? siteWeb,
         string? telephoneSecondaire, string? email)
     {

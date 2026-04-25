@@ -22,6 +22,9 @@ public class CreateClasseCommandHandler : IRequestHandler<CreateClasseCommand, R
     {
         var ecoleId = _currentUser.EcoleId;
 
+        if (ecoleId == Guid.Empty)
+            return Result<Guid>.Failure("Contexte école manquant — reconnectez-vous.");
+
         var codeExiste = await _context.Classes
             .AnyAsync(c => c.EcoleId == ecoleId
                         && c.AnneeScolaireId == request.AnneeScolaireId

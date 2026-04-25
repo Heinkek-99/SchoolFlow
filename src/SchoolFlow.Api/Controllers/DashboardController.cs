@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using SchoolFlow.Application.Dashboard.Queries;
 using SchoolFlow.Shared.Dtos;
 
-namespace SchoolFlow.API.Controllers;
+namespace SchoolFlow.Api.Controllers;
 
 /// <summary>
 /// Tableaux de bord et statistiques
 /// </summary>
-[Authorize]
+[Authorize(Policy = "TenantAccess")]
 public class DashboardController : BaseApiController
 {
 

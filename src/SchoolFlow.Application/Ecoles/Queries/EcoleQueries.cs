@@ -16,3 +16,5 @@ public record GetAllEcolesQuery(
     int Page = 1,
     int PageSize = 20
 ) : IRequest<Result<PagedResultDto<EcoleListItemDto>>>;
+
+public record GetEcolesPendingQuery() : IRequest<Result<List<EcolePendingDto>>>;

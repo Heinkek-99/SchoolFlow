@@ -4,12 +4,12 @@ using SchoolFlow.Application.Classes.Commands;
 using SchoolFlow.Application.Classes.Queries;
 using SchoolFlow.Domain.Entities;
 
-namespace SchoolFlow.API.Controllers;
+namespace SchoolFlow.Api.Controllers;
 
 /// <summary>
 /// Gestion des classes
 /// </summary>
-[Authorize]
+[Authorize(Policy = "TenantAccess")]
 public class ClassesController : BaseApiController
 {
     /// <summary>

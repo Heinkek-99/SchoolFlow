@@ -64,7 +64,7 @@ namespace SchoolFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EcoleId");
+                    b.HasIndex("EcoleId", "IsActive");
 
                     b.ToTable("AnneeScolaires");
                 });
@@ -122,6 +122,75 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasIndex("UtilisateurId");
 
                     b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Bulletin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AnneeScolaireId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AppreciationDirecteur")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AppreciationProfesseur")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClasseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("EffectifClasse")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("EleveId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("EstPublie")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("MoyenneGenerale")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<Guid>("PeriodeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RangClasse")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClasseId");
+
+                    b.HasIndex("PeriodeId");
+
+                    b.HasIndex("EleveId", "PeriodeId", "AnneeScolaireId")
+                        .IsUnique();
+
+                    b.ToTable("Bulletins");
                 });
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Classe", b =>
@@ -193,7 +262,140 @@ namespace SchoolFlow.Infrastructure.Migrations
 
                     b.HasIndex("AnneeScolaireId");
 
+                    b.HasIndex("EcoleId", "AnneeScolaireId", "IsArchived");
+
                     b.ToTable("Classes");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.CreneauHoraire", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AnneeScolaireId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClasseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("EnseignantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("HeureDebut")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<TimeOnly>("HeureFin")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Jour")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MatiereId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Remarque")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Salle")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EnseignantId");
+
+                    b.HasIndex("MatiereId");
+
+                    b.HasIndex("ClasseId", "AnneeScolaireId");
+
+                    b.ToTable("CreneauxHoraires");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Discipline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AnneeScolaireId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateDiscipline")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EleveId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Mesure")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Motif")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("NotifieParent")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("SignalePar")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnneeScolaireId");
+
+                    b.HasIndex("EleveId");
+
+                    b.HasIndex("SignalePar");
+
+                    b.ToTable("Disciplines");
                 });
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Ecole", b =>
@@ -424,12 +626,194 @@ namespace SchoolFlow.Infrastructure.Migrations
 
                     b.HasIndex("ClasseId");
 
-                    b.HasIndex("FamilleId");
-
                     b.HasIndex("Matricule")
                         .IsUnique();
 
+                    b.HasIndex("FamilleId", "IsArchived");
+
+                    b.HasIndex("EcoleId", "Statut", "IsArchived");
+
                     b.ToTable("Eleves");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Enseignant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("AnneesExperience")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Bio")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Grade")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PhotoPath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Specialite")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Telephone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("UtilisateurId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UtilisateurId");
+
+                    b.ToTable("Enseignants");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.EvaluationPlanifiee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AnneeScolaireId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClasseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateEvaluation")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("EstPubliee")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MatiereId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("NoteSur")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<Guid>("PeriodeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MatiereId");
+
+                    b.HasIndex("PeriodeId");
+
+                    b.HasIndex("ClasseId", "PeriodeId");
+
+                    b.ToTable("Evaluations");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Examen", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AnneeScolaireId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateDebut")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DateFin")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Nom")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnneeScolaireId");
+
+                    b.ToTable("Examens");
                 });
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Famille", b =>
@@ -514,6 +898,10 @@ namespace SchoolFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("NomPere");
+
+                    b.HasIndex("EcoleId", "IsArchived");
+
                     b.ToTable("Familles");
                 });
 
@@ -573,13 +961,127 @@ namespace SchoolFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EleveId");
-
                     b.HasIndex("PeriodeId");
 
                     b.HasIndex("TypeFraisId");
 
+                    b.HasIndex("EcoleId", "IsArchived");
+
+                    b.HasIndex("EleveId", "IsArchived");
+
                     b.ToTable("Frais");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.InscriptionExamen", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Admis")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EleveId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ExamenId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Mention")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("MoyenneExamen")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("NumeroCandidat")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EleveId");
+
+                    b.HasIndex("ExamenId", "EleveId")
+                        .IsUnique();
+
+                    b.ToTable("InscriptionsExamen");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.LigneBulletin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AppreciationEnseignant")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BulletinId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Coefficient")
+                        .HasColumnType("decimal(4,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MatiereId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("MoyenneClasse")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("MoyenneMatiere")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("MoyennePonderee")
+                        .HasColumnType("decimal(7,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BulletinId");
+
+                    b.HasIndex("MatiereId");
+
+                    b.ToTable("LignesBulletin");
                 });
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Matiere", b =>
@@ -602,11 +1104,20 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<int>("Coefficient")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("Coefficient")
+                        .HasColumnType("decimal(4,2)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsArchived")
                         .HasColumnType("boolean");
@@ -616,12 +1127,67 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("SousSysteme")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
                     b.ToTable("Matieres");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.MatiereEnseignant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AnneeScolaireId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ArchivedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClasseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EnseignantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MatiereId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClasseId");
+
+                    b.HasIndex("MatiereId");
+
+                    b.HasIndex("EnseignantId", "MatiereId", "ClasseId", "AnneeScolaireId")
+                        .IsUnique();
+
+                    b.ToTable("MatiereEnseignants");
                 });
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Note", b =>
@@ -645,23 +1211,33 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid?>("EleveId")
+                    b.Property<Guid>("EcoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EleveId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("EstPubliee")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("EvaluationId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsArchived")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("MatiereId")
+                    b.Property<Guid>("MatiereId")
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("NoteSur")
                         .HasColumnType("decimal(5,2)");
 
-                    b.Property<Guid?>("PeriodeId")
+                    b.Property<Guid>("PeriodeId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");
@@ -671,11 +1247,13 @@ namespace SchoolFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EleveId");
-
                     b.HasIndex("MatiereId");
 
                     b.HasIndex("PeriodeId");
+
+                    b.HasIndex("EvaluationId", "EleveId");
+
+                    b.HasIndex("EleveId", "PeriodeId", "EcoleId");
 
                     b.ToTable("Notes");
                 });
@@ -726,6 +1304,8 @@ namespace SchoolFlow.Infrastructure.Migrations
 
                     b.HasIndex("ProcessedAt");
 
+                    b.HasIndex("ProcessedAt", "RetryCount");
+
                     b.ToTable("OutboxMessages");
                 });
 
@@ -759,9 +1339,6 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.Property<Guid>("EnregistrePar")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("EnregistreParUtilisateurId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("FamilleId")
                         .HasColumnType("uuid");
 
@@ -788,12 +1365,14 @@ namespace SchoolFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EnregistreParUtilisateurId");
+                    b.HasIndex("EnregistrePar");
 
                     b.HasIndex("FamilleId");
 
                     b.HasIndex("NumeroPaiement")
                         .IsUnique();
+
+                    b.HasIndex("EcoleId", "DatePaiement", "IsArchived");
 
                     b.ToTable("Paiements");
                 });
@@ -991,6 +1570,8 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
+                    b.HasIndex("Username", "IsArchived");
+
                     b.ToTable("Utilisateurs");
                 });
 
@@ -1067,6 +1648,33 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.Navigation("Utilisateur");
                 });
 
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Bulletin", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.Classe", "Classe")
+                        .WithMany()
+                        .HasForeignKey("ClasseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Eleve", "Eleve")
+                        .WithMany()
+                        .HasForeignKey("EleveId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Periode", "Periode")
+                        .WithMany()
+                        .HasForeignKey("PeriodeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Classe");
+
+                    b.Navigation("Eleve");
+
+                    b.Navigation("Periode");
+                });
+
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Classe", b =>
                 {
                     b.HasOne("SchoolFlow.Domain.Entities.AnneeScolaire", "AnneeScolaire")
@@ -1076,6 +1684,58 @@ namespace SchoolFlow.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("AnneeScolaire");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.CreneauHoraire", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.Classe", "Classe")
+                        .WithMany()
+                        .HasForeignKey("ClasseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Enseignant", "Enseignant")
+                        .WithMany("Creneaux")
+                        .HasForeignKey("EnseignantId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Matiere", "Matiere")
+                        .WithMany("Creneaux")
+                        .HasForeignKey("MatiereId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Classe");
+
+                    b.Navigation("Enseignant");
+
+                    b.Navigation("Matiere");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Discipline", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.AnneeScolaire", "AnneeScolaire")
+                        .WithMany()
+                        .HasForeignKey("AnneeScolaireId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Eleve", "Eleve")
+                        .WithMany()
+                        .HasForeignKey("EleveId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Utilisateur", "SignaleParUtilisateur")
+                        .WithMany()
+                        .HasForeignKey("SignalePar")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AnneeScolaire");
+
+                    b.Navigation("Eleve");
+
+                    b.Navigation("SignaleParUtilisateur");
                 });
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Eleve", b =>
@@ -1099,6 +1759,55 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.Navigation("Classe");
 
                     b.Navigation("Famille");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Enseignant", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.Utilisateur", "Utilisateur")
+                        .WithMany()
+                        .HasForeignKey("UtilisateurId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Utilisateur");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.EvaluationPlanifiee", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.Classe", "Classe")
+                        .WithMany()
+                        .HasForeignKey("ClasseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Matiere", "Matiere")
+                        .WithMany("Evaluations")
+                        .HasForeignKey("MatiereId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Periode", "Periode")
+                        .WithMany()
+                        .HasForeignKey("PeriodeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Classe");
+
+                    b.Navigation("Matiere");
+
+                    b.Navigation("Periode");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Examen", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.AnneeScolaire", "AnneeScolaire")
+                        .WithMany()
+                        .HasForeignKey("AnneeScolaireId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AnneeScolaire");
                 });
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Frais", b =>
@@ -1127,21 +1836,99 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.Navigation("TypeFrais");
                 });
 
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.InscriptionExamen", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.Eleve", "Eleve")
+                        .WithMany()
+                        .HasForeignKey("EleveId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Examen", "Examen")
+                        .WithMany("Inscrits")
+                        .HasForeignKey("ExamenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Eleve");
+
+                    b.Navigation("Examen");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.LigneBulletin", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.Bulletin", "Bulletin")
+                        .WithMany("Lignes")
+                        .HasForeignKey("BulletinId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Matiere", "Matiere")
+                        .WithMany()
+                        .HasForeignKey("MatiereId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Bulletin");
+
+                    b.Navigation("Matiere");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.MatiereEnseignant", b =>
+                {
+                    b.HasOne("SchoolFlow.Domain.Entities.Classe", "Classe")
+                        .WithMany()
+                        .HasForeignKey("ClasseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Enseignant", "Enseignant")
+                        .WithMany("Matieres")
+                        .HasForeignKey("EnseignantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.Matiere", "Matiere")
+                        .WithMany()
+                        .HasForeignKey("MatiereId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Classe");
+
+                    b.Navigation("Enseignant");
+
+                    b.Navigation("Matiere");
+                });
+
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Note", b =>
                 {
                     b.HasOne("SchoolFlow.Domain.Entities.Eleve", "Eleve")
                         .WithMany("Notes")
-                        .HasForeignKey("EleveId");
+                        .HasForeignKey("EleveId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolFlow.Domain.Entities.EvaluationPlanifiee", "Evaluation")
+                        .WithMany("Notes")
+                        .HasForeignKey("EvaluationId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SchoolFlow.Domain.Entities.Matiere", "Matiere")
                         .WithMany("Notes")
-                        .HasForeignKey("MatiereId");
+                        .HasForeignKey("MatiereId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("SchoolFlow.Domain.Entities.Periode", "Periode")
                         .WithMany()
-                        .HasForeignKey("PeriodeId");
+                        .HasForeignKey("PeriodeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Eleve");
+
+                    b.Navigation("Evaluation");
 
                     b.Navigation("Matiere");
 
@@ -1152,9 +1939,8 @@ namespace SchoolFlow.Infrastructure.Migrations
                 {
                     b.HasOne("SchoolFlow.Domain.Entities.Utilisateur", "EnregistreParUtilisateur")
                         .WithMany()
-                        .HasForeignKey("EnregistreParUtilisateurId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EnregistrePar")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SchoolFlow.Domain.Entities.Famille", "Famille")
                         .WithMany("Paiements")
@@ -1193,8 +1979,7 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.HasOne("SchoolFlow.Domain.Entities.Eleve", "Eleve")
                         .WithMany()
                         .HasForeignKey("EleveId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SchoolFlow.Domain.Entities.Frais", "Frais")
                         .WithMany("Ventilations")
@@ -1224,6 +2009,11 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.Navigation("Periodes");
                 });
 
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Bulletin", b =>
+                {
+                    b.Navigation("Lignes");
+                });
+
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Classe", b =>
                 {
                     b.Navigation("Eleves");
@@ -1243,6 +2033,23 @@ namespace SchoolFlow.Infrastructure.Migrations
                     b.Navigation("Notes");
                 });
 
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Enseignant", b =>
+                {
+                    b.Navigation("Creneaux");
+
+                    b.Navigation("Matieres");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.EvaluationPlanifiee", b =>
+                {
+                    b.Navigation("Notes");
+                });
+
+            modelBuilder.Entity("SchoolFlow.Domain.Entities.Examen", b =>
+                {
+                    b.Navigation("Inscrits");
+                });
+
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Famille", b =>
                 {
                     b.Navigation("Eleves");
@@ -1257,6 +2064,10 @@ namespace SchoolFlow.Infrastructure.Migrations
 
             modelBuilder.Entity("SchoolFlow.Domain.Entities.Matiere", b =>
                 {
+                    b.Navigation("Creneaux");
+
+                    b.Navigation("Evaluations");
+
                     b.Navigation("Notes");
                 });
 

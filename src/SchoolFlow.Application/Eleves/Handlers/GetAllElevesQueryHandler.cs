@@ -9,19 +9,26 @@ using SchoolFlow.Shared.Dtos;
 public class GetAllElevesQueryHandler : IRequestHandler<GetAllElevesQuery, Result<List<EleveDto>>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetAllElevesQueryHandler(IApplicationDbContext context)
+    public GetAllElevesQueryHandler(IApplicationDbContext context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<Result<List<EleveDto>>> Handle(GetAllElevesQuery request, CancellationToken ct)
     {
+        var ecoleId = _currentUser.EcoleId;
+        if (ecoleId == Guid.Empty)
+            return Result<List<EleveDto>>.Failure("Accès non autorisé : EcoleId manquant.");
+
         var query = _context.Eleves
+            .Where(e => e.EcoleId == ecoleId && !e.IsArchived && e.Statut == StatutEleve.Actif)
             .Include(e => e.Classe)
             .Include(e => e.Famille)
             .Include(e => e.Frais.Where(f => !f.IsArchived))
-            .Where(e => e.Statut == StatutEleve.Actif);
+            .AsQueryable();
 
         if (request.ClasseId.HasValue)
             query = query.Where(e => e.ClasseId == request.ClasseId.Value);
@@ -34,7 +41,7 @@ public class GetAllElevesQueryHandler : IRequestHandler<GetAllElevesQuery, Resul
             .AsNoTracking()
             .ToListAsync(ct);
 
-            var result = eleves
+        var result = eleves
             .Select(e => new EleveDto(
                 e.Id,
                 e.Matricule,

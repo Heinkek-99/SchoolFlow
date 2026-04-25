@@ -25,8 +25,9 @@ public class GetAllClassesQueryHandler : IRequestHandler<GetAllClassesQuery, Res
         var classes = await _context.Classes
             .Include(c => c.Eleves.Where(e => !e.IsArchived && e.Statut == Domain.Entities.StatutEleve.Actif))
             .Include(c => c.AnneeScolaire)
-            .Where(c => c.EcoleId == ecoleId && c.AnneeScolaire.IsActive)
-            .OrderBy(c => c.Niveau)
+            .Where(c => c.EcoleId == ecoleId && !c.IsArchived)
+            .OrderBy(c => c.AnneeScolaire.DateDebut)
+            .ThenBy(c => c.Niveau)
             .ThenBy(c => c.Section)
             .AsNoTracking()
             .ToListAsync(ct);

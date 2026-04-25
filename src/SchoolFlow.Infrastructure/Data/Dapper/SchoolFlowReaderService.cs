@@ -246,4 +246,126 @@ public class SchoolFlowReadService : ISchoolFlowReadService
         var result = await conn.QueryAsync<EleveListDto>(sql, new { ecoleId, classeId });
         return result.ToList().AsReadOnly();
     }
+
+    // ─── BULLETINS PAR CLASSE ────────────────────────────────────────────────────
+
+    public async Task<IReadOnlyList<BulletinResumeDto>> GetBulletinsClasseAsync(
+        Guid ecoleId,
+        Guid classeId,
+        Guid periodeId,
+        CancellationToken ct = default)
+    {
+        await using var conn = CreateConnection();
+
+        const string sql = """
+            SELECT
+                b."Id",
+                e."Nom" || ' ' || e."Prenom"  AS "EleveNom",
+                e."Matricule"                  AS "EleveMatricule",
+                b."MoyenneGenerale",
+                b."RangClasse",
+                b."EffectifClasse",
+                CASE
+                    WHEN b."MoyenneGenerale" >= 16 THEN 'Très Bien'
+                    WHEN b."MoyenneGenerale" >= 14 THEN 'Bien'
+                    WHEN b."MoyenneGenerale" >= 12 THEN 'Assez Bien'
+                    WHEN b."MoyenneGenerale" >= 10 THEN 'Passable'
+                    ELSE 'Insuffisant'
+                END AS "Appreciation",
+                b."EstPublie"
+            FROM "Bulletins" b
+            INNER JOIN "Eleves" e ON e."Id" = b."EleveId"
+            WHERE b."EcoleId"   = @ecoleId
+              AND e."ClasseId"  = @classeId
+              AND b."PeriodeId" = @periodeId
+              AND b."IsArchived" = false
+              AND e."IsArchived" = false
+            ORDER BY b."RangClasse"
+            """;
+
+        var rows = await conn.QueryAsync<BulletinRow>(sql, new { ecoleId, classeId, periodeId });
+        return rows.Select(r => new BulletinResumeDto(
+            r.Id, r.EleveNom, r.EleveMatricule,
+            r.MoyenneGenerale, r.RangClasse, r.EffectifClasse,
+            r.Appreciation, r.EstPublie
+        )).ToList().AsReadOnly();
+    }
+
+    // ─── EMPLOI DU TEMPS PAR CLASSE ──────────────────────────────────────────────
+
+    public async Task<EmploiDuTempsClasseDto> GetEmploiDuTempsClasseAsync(
+        Guid ecoleId,
+        Guid classeId,
+        Guid anneeScolaireId,
+        CancellationToken ct = default)
+    {
+        await using var conn = CreateConnection();
+
+        const string sql = """
+            SELECT
+                ch."Id",
+                ch."Jour"                               AS "Jour",
+                TO_CHAR(ch."HeureDebut", 'HH24:MI')     AS "HeureDebut",
+                TO_CHAR(ch."HeureFin",   'HH24:MI')     AS "HeureFin",
+                m."Libelle"                             AS "Matiere",
+                CASE WHEN en."Id" IS NOT NULL
+                     THEN u."Prenom" || ' ' || u."Nom"
+                     ELSE NULL END                      AS "Enseignant",
+                ch."Salle",
+                c."Nom"                                 AS "NomClasse"
+            FROM "CreneauxHoraires" ch
+            INNER JOIN "Matieres" m   ON m."Id"  = ch."MatiereId"   AND m."IsArchived"  = false
+            INNER JOIN "Classes"  c   ON c."Id"  = ch."ClasseId"
+            LEFT  JOIN "Enseignants" en ON en."Id" = ch."EnseignantId" AND en."IsArchived" = false
+            LEFT  JOIN "Utilisateurs" u ON u."Id"  = en."UtilisateurId" AND u."IsArchived" = false
+            WHERE ch."EcoleId"         = @ecoleId
+              AND ch."ClasseId"        = @classeId
+              AND ch."AnneeScolaireId" = @anneeScolaireId
+              AND ch."IsArchived"      = false
+            ORDER BY ch."Jour", ch."HeureDebut"
+            """;
+
+        var rows = (await conn.QueryAsync<CreneauRow>(sql,
+            new { ecoleId, classeId, anneeScolaireId })).ToList();
+
+        var nomClasse = rows.FirstOrDefault()?.NomClasse ?? string.Empty;
+
+        var planningParJour = rows
+            .GroupBy(r => r.Jour)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(r => new CreneauDto(
+                    r.Id, r.Jour, r.HeureDebut, r.HeureFin,
+                    r.Matiere, r.Enseignant, r.Salle
+                )).ToList()
+            );
+
+        return new EmploiDuTempsClasseDto(classeId, nomClasse, planningParJour);
+    }
+
+    // ─── HELPERS PRIVÉS ──────────────────────────────────────────────────────────
+
+    private class BulletinRow
+    {
+        public Guid    Id              { get; set; }
+        public string  EleveNom        { get; set; } = string.Empty;
+        public string  EleveMatricule  { get; set; } = string.Empty;
+        public decimal MoyenneGenerale { get; set; }
+        public int     RangClasse      { get; set; }
+        public int     EffectifClasse  { get; set; }
+        public string  Appreciation    { get; set; } = string.Empty;
+        public bool    EstPublie       { get; set; }
+    }
+
+    private class CreneauRow
+    {
+        public Guid    Id         { get; set; }
+        public string  Jour       { get; set; } = string.Empty;
+        public string  HeureDebut { get; set; } = string.Empty;
+        public string  HeureFin   { get; set; } = string.Empty;
+        public string  Matiere    { get; set; } = string.Empty;
+        public string? Enseignant { get; set; }
+        public string? Salle      { get; set; }
+        public string  NomClasse  { get; set; } = string.Empty;
+    }
 }

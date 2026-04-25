@@ -17,6 +17,15 @@ public interface IApplicationDbContext
     DbSet<VentilationPaiement> VentilationsPaiement { get; }
     DbSet<Note> Notes { get; }
     DbSet<Matiere> Matieres { get; }
+    DbSet<Enseignant> Enseignants { get; }
+    DbSet<MatiereEnseignant> MatiereEnseignants { get; }
+    DbSet<EvaluationPlanifiee> Evaluations { get; }
+    DbSet<Bulletin> Bulletins { get; }
+    DbSet<LigneBulletin> LignesBulletin { get; }
+    DbSet<CreneauHoraire> CreneauxHoraires { get; }
+    DbSet<Discipline> Disciplines { get; }
+    DbSet<Examen> Examens { get; }
+    DbSet<InscriptionExamen> InscriptionsExamen { get; }
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<Ecole> Ecoles { get; }
     DbSet<OutboxMessage> OutboxMessages { get; }

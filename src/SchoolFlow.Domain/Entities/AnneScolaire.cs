@@ -13,7 +13,7 @@ public class AnneeScolaire : TenantEntity  // ← était BaseEntity
     public ICollection<Eleve> Eleves { get; set; } = new List<Eleve>();
     public ICollection<Periode> Periodes { get; set; } = new List<Periode>();
 
-    // Méthode métier
+    // Méthodes métier
     public void Activer()
     {
         IsActive = true;
@@ -23,6 +23,14 @@ public class AnneeScolaire : TenantEntity  // ← était BaseEntity
     public void Desactiver()
     {
         IsActive = false;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void MettreAJour(string libelle, DateTime dateDebut, DateTime dateFin)
+    {
+        Libelle = libelle.Trim();
+        DateDebut = DateTime.SpecifyKind(dateDebut, DateTimeKind.Utc);
+        DateFin = DateTime.SpecifyKind(dateFin, DateTimeKind.Utc);
         UpdatedAt = DateTime.UtcNow;
     }
 }

@@ -6,7 +6,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolFlow.API.Controllers;
 using SchoolFlow.Application.Ecoles.Commands;
 using SchoolFlow.Application.Ecoles.Queries;
 
@@ -171,6 +170,33 @@ public class EcolesController : BaseApiController
         var result = await Mediator.Send(new RejeterEcoleCommand(id, request.Motif), ct);
         return result.IsSuccess ? Ok(new { message = result.Data }) : BadRequest(new { error = result.Error });
     }
+
+    /// <summary>
+    /// Suspend une école active (SuperAdmin uniquement).
+    /// </summary>
+    [HttpPut("{id:guid}/suspendre")]
+    [Authorize(Roles = "SuperAdmin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> Suspendre(
+        Guid id,
+        [FromBody] SuspendreEcoleRequest request,
+        CancellationToken ct)
+    {
+        var result = await Mediator.Send(new SuspendreEcoleCommand(id, request.Raison), ct);
+        return result.IsSuccess ? Ok(new { message = result.Data }) : BadRequest(new { error = result.Error });
+    }
+
+    /// <summary>
+    /// Liste les écoles en attente de validation (SuperAdmin uniquement).
+    /// </summary>
+    [HttpGet("pending")]
+    [Authorize(Roles = "SuperAdmin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPending(CancellationToken ct)
+    {
+        var result = await Mediator.Send(new GetEcolesPendingQuery(), ct);
+        return result.IsSuccess ? Ok(result.Data) : BadRequest(new { error = result.Error });
+    }
 }
 
 // ─── REQUEST MODELS ──────────────────────────────────────────────────────────
@@ -183,3 +209,4 @@ public record MettreAJourEcoleRequest(
 );
 
 public record RejeterEcoleRequest(string Motif);
+public record SuspendreEcoleRequest(string Raison);

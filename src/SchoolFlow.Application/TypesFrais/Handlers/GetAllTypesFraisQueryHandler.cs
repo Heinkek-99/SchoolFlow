@@ -24,7 +24,7 @@ public class GetAllTypesFraisQueryHandler : IRequestHandler<GetAllTypesFraisQuer
 
         var types = await _context.TypeFrais
             .AsNoTracking()
-            .Where(t => t.EcoleId == ecoleId)
+            .Where(t => t.EcoleId == ecoleId && !t.IsArchived)
             .OrderBy(t => t.Categorie)
             .ThenBy(t => t.Code)
             .ToListAsync(ct);

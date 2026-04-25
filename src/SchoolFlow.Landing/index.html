@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SchoolFlow — Gestion scolaire simplifiée pour l'Afrique</title>
+  <meta name="description" content="SchoolFlow simplifie la gestion administrative et financière des établissements scolaires privés en Afrique francophone." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #2563EB;
+      --blue-dark: #1D4ED8;
+      --blue-light: #EFF6FF;
+      --green: #10B981;
+      --green-dark: #059669;
+      --dark: #0F172A;
+      --slate: #334155;
+      --slate-light: #64748B;
+      --bg: #F8FAFC;
+      --white: #FFFFFF;
+      --border: #E2E8F0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow: 0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,.14);
+      --radius: 12px;
+      --radius-lg: 20px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--slate); background: var(--white); line-height: 1.6; }
+
+    /* ── NAVBAR ─────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,.85);
+      border-bottom: 1px solid rgba(226,232,240,.6);
+      transition: box-shadow .25s;
+    }
+    nav.scrolled { box-shadow: var(--shadow); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--blue), #6366F1);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .nav-logo-text { font-size: 1.25rem; font-weight: 800; color: var(--dark); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--slate); font-weight: 500; font-size: .92rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-cta {
+      background: var(--blue); color: var(--white);
+      padding: 10px 22px; border-radius: 8px; font-weight: 600; font-size: .9rem;
+      text-decoration: none; transition: background .2s, transform .15s;
+    }
+    .nav-cta:hover { background: var(--blue-dark); transform: translateY(-1px); }
+    .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--dark); margin: 5px 0; border-radius: 2px; transition: .3s; }
+
+    /* ── HERO ───────────────────────────────────────────────────────────── */
+    .hero {
+      padding: 140px 5% 100px;
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1E1B4B 100%);
+      position: relative; overflow: hidden; text-align: center;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(99,102,241,.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 30%, rgba(16,185,129,.15) 0%, transparent 55%);
+    }
+    .hero-content { position: relative; max-width: 800px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      color: #93C5FD; padding: 6px 16px; border-radius: 999px;
+      font-size: .85rem; font-weight: 500; margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900;
+      color: var(--white); line-height: 1.15; margin-bottom: 20px;
+    }
+    .hero h1 span { color: #93C5FD; }
+    .hero p {
+      font-size: 1.1rem; color: #CBD5E1;
+      max-width: 600px; margin: 0 auto 40px; line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 64px; }
+    .btn-primary {
+      background: var(--blue); color: var(--white);
+      padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 1rem;
+      text-decoration: none; transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(37,99,235,.4);
+    }
+    .btn-primary:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(37,99,235,.5); }
+    .btn-outline {
+      background: transparent; color: var(--white);
+      padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 1rem;
+      text-decoration: none; border: 2px solid rgba(255,255,255,.35);
+      transition: background .2s, border-color .2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); }
+    .hero-stats { display: flex; gap: 48px; justify-content: center; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 2rem; font-weight: 800; color: var(--white); display: block; line-height: 1; }
+    .stat-value .stat-accent { color: #34D399; }
+    .stat-label { font-size: .82rem; color: #94A3B8; margin-top: 6px; }
+
+    /* ── SECTION BASE ───────────────────────────────────────────────────── */
+    section { padding: 80px 5%; }
+    .section-center { text-align: center; max-width: 680px; margin: 0 auto 56px; }
+    .section-tag {
+      display: inline-block; background: var(--blue-light); color: var(--blue);
+      padding: 4px 14px; border-radius: 999px; font-size: .8rem; font-weight: 600;
+      margin-bottom: 12px; letter-spacing: .04em; text-transform: uppercase;
+    }
+    h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 800; color: var(--dark); line-height: 1.25; margin-bottom: 16px; }
+    .section-sub { color: var(--slate-light); font-size: 1.05rem; line-height: 1.7; }
+
+    /* ── PROBLÈME ───────────────────────────────────────────────────────── */
+    .section-problems { background: var(--bg); }
+    .problems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; }
+    .problem-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 24px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .problem-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .problem-emoji { font-size: 2rem; margin-bottom: 14px; display: block; }
+    .problem-card h3 { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+    .problem-card p { font-size: .9rem; color: var(--slate-light); line-height: 1.6; }
+
+    /* ── FEATURES ───────────────────────────────────────────────────────── */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
+    .feature-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 32px 28px;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: rgba(37,99,235,.2); }
+    .feature-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--blue-light), #DBEAFE);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 20px;
+    }
+    .feature-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--dark); margin-bottom: 10px; }
+    .feature-card p { font-size: .9rem; color: var(--slate-light); line-height: 1.65; }
+
+    /* ── ÉTAPES ─────────────────────────────────────────────────────────── */
+    .section-steps { background: linear-gradient(135deg, #0F172A, #1E3A8A); }
+    .section-steps .section-tag { background: rgba(255,255,255,.1); color: #93C5FD; }
+    .section-steps h2 { color: var(--white); }
+    .section-steps .section-sub { color: #CBD5E1; }
+    .steps { display: flex; gap: 0; max-width: 900px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+    .step { flex: 1; min-width: 200px; text-align: center; padding: 24px 20px; position: relative; }
+    .step:not(:last-child)::after {
+      content: '→'; position: absolute; right: -10px; top: 38px;
+      font-size: 1.5rem; color: #475569;
+    }
+    .step-num {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), #6366F1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 800; color: var(--white);
+      margin: 0 auto 16px; box-shadow: 0 4px 20px rgba(37,99,235,.4);
+    }
+    .step h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+    .step p { font-size: .88rem; color: #94A3B8; line-height: 1.6; }
+
+    /* ── SYSTÈMES ───────────────────────────────────────────────────────── */
+    .section-systems { background: var(--bg); }
+    .systems-badges { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
+    .system-badge {
+      background: var(--white); border: 2px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 36px; text-align: center;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      min-width: 200px;
+    }
+    .system-badge:hover { transform: translateY(-4px); border-color: var(--blue); box-shadow: var(--shadow); }
+    .system-badge .flag { font-size: 2.2rem; display: block; margin-bottom: 10px; }
+    .system-badge h3 { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+    .system-badge p { font-size: .82rem; color: var(--slate-light); }
+
+    /* ── TARIFS ─────────────────────────────────────────────────────────── */
+    .pricing-grid { display: flex; gap: 24px; max-width: 980px; margin: 0 auto; flex-wrap: wrap; justify-content: center; align-items: stretch; }
+    .pricing-card {
+      background: var(--white); border: 2px solid var(--border);
+      border-radius: var(--radius-lg); padding: 36px 32px;
+      flex: 1; min-width: 260px; max-width: 300px;
+      display: flex; flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .pricing-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+    .pricing-card.featured {
+      border-color: var(--blue);
+      background: linear-gradient(180deg, #EFF6FF, var(--white));
+      position: relative;
+    }
+    .pricing-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--blue), #6366F1);
+      color: var(--white); padding: 4px 20px; border-radius: 999px;
+      font-size: .78rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .pricing-tier { font-size: .82rem; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+    .pricing-price { font-size: 1.9rem; font-weight: 900; color: var(--dark); margin-bottom: 4px; }
+    .pricing-price span { font-size: .9rem; font-weight: 400; color: var(--slate-light); }
+    .pricing-limit { font-size: .88rem; color: var(--slate-light); margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .pricing-features { list-style: none; flex: 1; }
+    .pricing-features li { display: flex; align-items: flex-start; gap: 10px; font-size: .9rem; color: var(--slate); padding: 7px 0; }
+    .pricing-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .pricing-cta {
+      margin-top: 28px; display: block; text-align: center;
+      background: var(--bg); color: var(--blue);
+      padding: 13px; border-radius: 10px; font-weight: 700; font-size: .95rem;
+      text-decoration: none; border: 2px solid var(--blue);
+      transition: background .2s, color .2s;
+    }
+    .pricing-cta:hover { background: var(--blue); color: var(--white); }
+    .pricing-card.featured .pricing-cta { background: var(--blue); color: var(--white); }
+    .pricing-card.featured .pricing-cta:hover { background: var(--blue-dark); }
+
+    /* ── TÉMOIGNAGES ────────────────────────────────────────────────────── */
+    .section-testimonials { background: var(--bg); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; }
+    .testimonial-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .testimonial-stars { color: #FBBF24; font-size: 1.1rem; margin-bottom: 16px; }
+    .testimonial-text { font-size: .95rem; color: var(--slate); line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), #6366F1);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white); font-weight: 700; font-size: 1rem; flex-shrink: 0;
+    }
+    .testimonial-name { font-weight: 700; color: var(--dark); font-size: .95rem; }
+    .testimonial-role { font-size: .82rem; color: var(--slate-light); }
+
+    /* ── CTA FINAL ──────────────────────────────────────────────────────── */
+    .section-cta {
+      background: linear-gradient(135deg, #0F172A, #1E3A8A);
+      text-align: center;
+    }
+    .section-cta h2 { color: var(--white); }
+    .section-cta p { color: #CBD5E1; font-size: 1.05rem; max-width: 520px; margin: 0 auto 40px; }
+    .cta-form { max-width: 480px; margin: 0 auto; }
+    .cta-form-row { display: flex; flex-direction: column; gap: 14px; }
+    .cta-input {
+      width: 100%; padding: 14px 18px; border-radius: 10px;
+      border: 2px solid rgba(255,255,255,.15); background: rgba(255,255,255,.08);
+      color: var(--white); font-size: .95rem; font-family: inherit;
+      transition: border-color .2s, background .2s;
+    }
+    .cta-input::placeholder { color: #94A3B8; }
+    .cta-input:focus { outline: none; border-color: rgba(147,197,253,.6); background: rgba(255,255,255,.12); }
+    .cta-submit {
+      width: 100%; padding: 16px; background: linear-gradient(135deg, var(--blue), #6366F1);
+      color: var(--white); font-weight: 700; font-size: 1rem;
+      border: none; border-radius: 10px; cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      box-shadow: 0 4px 20px rgba(37,99,235,.4);
+    }
+    .cta-submit:hover { opacity: .9; transform: translateY(-2px); }
+    .cta-note { margin-top: 14px; font-size: .83rem; color: #64748B; }
+    .cta-success { display: none; padding: 20px; background: rgba(16,185,129,.15); border: 2px solid rgba(16,185,129,.4); border-radius: 12px; color: #34D399; font-weight: 600; }
+
+    /* ── FOOTER ─────────────────────────────────────────────────────────── */
+    footer { background: var(--dark); color: #94A3B8; padding: 60px 5% 40px; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-brand p { font-size: .9rem; line-height: 1.7; margin-top: 16px; max-width: 300px; }
+    .footer-col h4 { color: var(--white); font-weight: 700; margin-bottom: 16px; font-size: .95rem; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a { color: #94A3B8; text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .footer-col ul li a:hover { color: var(--white); }
+    .footer-bottom { border-top: 1px solid #1E293B; padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap: 16px; font-size: .85rem; }
+    .footer-legal a { color: #64748B; text-decoration: none; margin-left: 20px; }
+    .footer-legal a:hover { color: var(--white); }
+
+    /* ── ANIMATIONS ─────────────────────────────────────────────────────── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 0 5%; }
+      .nav-links, .nav-cta { display: none; }
+      .nav-hamburger { display: block; }
+      nav.menu-open .nav-links {
+        display: flex; flex-direction: column; position: fixed;
+        top: 68px; left: 0; right: 0;
+        background: var(--white); padding: 20px 5%; gap: 4px;
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+      nav.menu-open .nav-cta { display: block; }
+      .hero { padding: 120px 5% 72px; }
+      .hero-stats { gap: 28px; }
+      .step:not(:last-child)::after { display: none; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ═══════════════════════════════════════════════════════════════ -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🏫</div>
+    <span class="nav-logo-text">SchoolFlow</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+    <li><a href="#tarifs">Tarifs</a></li>
+    <li><a href="#systemes">À propos</a></li>
+    <li><a href="#demo">Démo</a></li>
+  </ul>
+  <a href="#inscription" class="nav-cta">Inscrire mon école</a>
+  <button class="nav-hamburger" id="menuBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ══ HERO ═════════════════════════════════════════════════════════════════ -->
+<section class="hero" id="demo">
+  <div class="hero-content">
+    <div class="hero-badge">🚀 Nouveau — Gestion scolaire simplifiée</div>
+    <h1>Gérez votre école avec<br /><span>précision et sérénité</span></h1>
+    <p>SchoolFlow simplifie la gestion administrative et financière des établissements scolaires privés en Afrique francophone. Moins de papier, plus de résultats.</p>
+    <div class="hero-actions">
+      <a href="#inscription" class="btn-primary">Inscrire mon école</a>
+      <a href="#fonctionnalites" class="btn-outline">Voir les fonctionnalités</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-value"><span class="stat-accent" data-count="45">45</span> min <span style="color:#94A3B8;font-size:1.2rem">→</span> <span class="stat-accent" data-count="8">8</span> min</span>
+        <div class="stat-label">Temps d'inscription élève</div>
+      </div>
+      <div class="stat">
+        <span class="stat-value"><span class="stat-accent" data-count="25">0</span><span style="color:#34D399">%</span></span>
+        <div class="stat-label">Hausse taux de recouvrement</div>
+      </div>
+      <div class="stat">
+        <span class="stat-value"><span class="stat-accent">100%</span></span>
+        <div class="stat-label">Données sécurisées</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROBLÈME ══════════════════════════════════════════════════════════════ -->
+<section class="section-problems" id="probleme">
+  <div class="section-center fade-in">
+    <span class="section-tag">Le problème</span>
+    <h2>Vous vous reconnaissez ?</h2>
+    <p class="section-sub">La gestion d'une école privée cumule des tâches chronophages qui mobilisent du temps précieux, loin de votre cœur de métier.</p>
+  </div>
+  <div class="problems-grid">
+    <div class="problem-card fade-in">
+      <span class="problem-emoji">📋</span>
+      <h3>Inscription interminable</h3>
+      <p>45 minutes par élève, des piles de formulaires en papier, et encore des erreurs de saisie le lendemain.</p>
+    </div>
+    <div class="problem-card fade-in">
+      <span class="problem-emoji">💰</span>
+      <h3>Confusion des paiements</h3>
+      <p>Une famille avec 3 enfants fait un seul virement — impossible de savoir à qui affecter quoi et pour quel trimestre.</p>
+    </div>
+    <div class="problem-card fade-in">
+      <span class="problem-emoji">📊</span>
+      <h3>Impayés invisibles</h3>
+      <p>On découvre les familles débitrices uniquement en fin de trimestre, quand il est souvent trop tard pour agir.</p>
+    </div>
+    <div class="problem-card fade-in">
+      <span class="problem-emoji">📄</span>
+      <h3>Documents manuels</h3>
+      <p>Reçus de paiement, bulletins financiers, rapports pour la direction — tout est saisi à la main dans Excel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FONCTIONNALITÉS ═══════════════════════════════════════════════════════ -->
+<section id="fonctionnalites">
+  <div class="section-center fade-in">
+    <span class="section-tag">Solution</span>
+    <h2>SchoolFlow, votre assistant de direction</h2>
+    <p class="section-sub">Une plateforme complète pensée pour les établissements privés camerounais et d'Afrique francophone.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card fade-in">
+      <div class="feature-icon">🏫</div>
+      <h3>Gestion des familles</h3>
+      <p>Vision consolidée des paiements pour toute la famille, même avec plusieurs enfants inscrits dans des classes différentes.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">💳</div>
+      <h3>Suivi financier temps réel</h3>
+      <p>Tableau de bord avec taux de recouvrement, liste des impayés, et statistiques financières par trimestre. Alertes automatiques.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">👨‍🎓</div>
+      <h3>Dossier élève complet</h3>
+      <p>Matricule automatique, historique des paiements, frais générés à l'inscription — tout en un seul dossier accessible en 2 clics.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">📚</div>
+      <h3>Classes &amp; Niveaux</h3>
+      <p>Support Francophone, Anglophone et Bilingue. Sections A/B, SousSysteme personnalisé, gestion par année scolaire.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">🔐</div>
+      <h3>Contrôle d'accès par rôle</h3>
+      <p>Admin, Directeur, Secrétaire, Comptable — chaque rôle voit exactement ce dont il a besoin. Aucune donnée sensible exposée.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon">📊</div>
+      <h3>Rapports automatiques</h3>
+      <p>Génération de reçus de paiement, bulletins financiers, et rapports mensuels prêts à imprimer en un clic.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ÉTAPES ════════════════════════════════════════════════════════════════ -->
+<section class="section-steps">
+  <div class="section-center fade-in">
+    <span class="section-tag">Comment ça marche</span>
+    <h2>Opérationnel en 3 étapes</h2>
+    <p class="section-sub">Pas besoin de formation longue. En moins d'une heure, votre école est prête.</p>
+  </div>
+  <div class="steps">
+    <div class="step fade-in">
+      <div class="step-num">1</div>
+      <h3>Inscrivez votre école</h3>
+      <p>Remplissez le formulaire en 2 minutes. Votre compte Admin est créé instantanément.</p>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">2</div>
+      <h3>Configurez classes &amp; frais</h3>
+      <p>Ajoutez vos classes, niveaux et types de frais. SchoolFlow génère les montants automatiquement.</p>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">3</div>
+      <h3>Gérez élèves &amp; paiements</h3>
+      <p>Inscrivez vos élèves, enregistrez les paiements, suivez les impayés en temps réel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SYSTÈMES ══════════════════════════════════════════════════════════════ -->
+<section class="section-systems" id="systemes">
+  <div class="section-center fade-in">
+    <span class="section-tag">Contexte local</span>
+    <h2>Adapté au contexte camerounais</h2>
+    <p class="section-sub">SchoolFlow prend en charge les deux sous-systèmes éducatifs du Cameroun, ainsi que les établissements bilingues.</p>
+  </div>
+  <div class="systems-badges">
+    <div class="system-badge fade-in">
+      <span class="flag">🇫🇷</span>
+      <h3>Système Francophone</h3>
+      <p>CP, CE1, CE2, CM1, CM2, 6ème, 5ème…<br />3ème, 2nde, Terminale</p>
+    </div>
+    <div class="system-badge fade-in">
+      <span class="flag">🇬🇧</span>
+      <h3>Système Anglophone</h3>
+      <p>Class 1 → 6, Form 1 → 5,<br />Lower 6th, Upper 6th</p>
+    </div>
+    <div class="system-badge fade-in">
+      <span class="flag">🔀</span>
+      <h3>Établissements Bilingues</h3>
+      <p>Sections francophones et anglophones<br />dans le même établissement</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TARIFS ════════════════════════════════════════════════════════════════ -->
+<section id="tarifs">
+  <div class="section-center fade-in">
+    <span class="section-tag">Tarifs</span>
+    <h2>Transparent et sans surprise</h2>
+    <p class="section-sub">Tout est inclus : formation initiale, support technique et mises à jour. Aucun frais caché.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card fade-in">
+      <div class="pricing-tier">Starter</div>
+      <div class="pricing-price">150 000 <span>FCFA / an</span></div>
+      <div class="pricing-limit">Jusqu'à 200 élèves</div>
+      <ul class="pricing-features">
+        <li>Gestion familles &amp; élèves</li>
+        <li>Suivi des paiements</li>
+        <li>3 comptes utilisateurs</li>
+        <li>Tableau de bord basique</li>
+        <li>Support par email</li>
+      </ul>
+      <a href="#inscription" class="pricing-cta">Commencer</a>
+    </div>
+    <div class="pricing-card featured fade-in">
+      <div class="pricing-badge">⭐ POPULAIRE</div>
+      <div class="pricing-tier">Standard</div>
+      <div class="pricing-price">300 000 <span>FCFA / an</span></div>
+      <div class="pricing-limit">Jusqu'à 500 élèves</div>
+      <ul class="pricing-features">
+        <li>Tout du plan Starter</li>
+        <li>10 comptes utilisateurs</li>
+        <li>Rapports financiers avancés</li>
+        <li>Gestion multi-niveaux</li>
+        <li>Alertes impayés auto</li>
+        <li>Support prioritaire</li>
+      </ul>
+      <a href="#inscription" class="pricing-cta">Commencer</a>
+    </div>
+    <div class="pricing-card fade-in">
+      <div class="pricing-tier">Entreprise</div>
+      <div class="pricing-price">500 000 <span>FCFA / an</span></div>
+      <div class="pricing-limit">Élèves illimités</div>
+      <ul class="pricing-features">
+        <li>Tout du plan Standard</li>
+        <li>Comptes illimités</li>
+        <li>Multi-établissements</li>
+        <li>Rapports personnalisés</li>
+        <li>Formation sur site</li>
+        <li>Support dédié 7j/7</li>
+      </ul>
+      <a href="#inscription" class="pricing-cta">Nous contacter</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TÉMOIGNAGES ═══════════════════════════════════════════════════════════ -->
+<section class="section-testimonials">
+  <div class="section-center fade-in">
+    <span class="section-tag">Témoignages</span>
+    <h2>Ils font confiance à SchoolFlow</h2>
+    <p class="section-sub">Des directeurs et comptables d'établissements camerounais partagent leur expérience.</p>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card fade-in">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"En 3 ans de direction, c'est le premier outil qui m'a vraiment simplifié la vie. L'inscription d'un élève prend maintenant moins de 10 minutes, et je vois les impayés en temps réel. Je recommande sans hésiter."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">NK</div>
+        <div>
+          <div class="testimonial-name">M. Nkengne Paul</div>
+          <div class="testimonial-role">Directeur — La Victoire Bilingue, Yaoundé</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card fade-in">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Avant SchoolFlow, je passais 2 heures par jour sur Excel pour rapprocher les paiements. Maintenant, tout est automatique. La ventilation FIFO entre les enfants d'une même famille est particulièrement ingénieuse."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">KA</div>
+        <div>
+          <div class="testimonial-name">Mme Kamga Angèle</div>
+          <div class="testimonial-role">Comptable — Les Champions, Bafoussam</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card fade-in">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Le tableau de bord financier a révolutionné nos réunions de direction. En un coup d'œil, je sais où on en est. Et les parents apprécient de recevoir un reçu numérique dès le paiement enregistré."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">FJ</div>
+        <div>
+          <div class="testimonial-name">M. Fouda Jean-Baptiste</div>
+          <div class="testimonial-role">Admin — École Bilingue Excellence, Douala</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA FINAL ══════════════════════════════════════════════════════════════ -->
+<section class="section-cta" id="inscription">
+  <div class="section-center fade-in" style="margin-bottom:40px">
+    <span class="section-tag">Démarrer</span>
+    <h2>Prêt à moderniser votre école ?</h2>
+    <p>Commencez gratuitement — 30 jours d'essai sans carte bancaire. Annulation à tout moment.</p>
+  </div>
+  <div class="cta-form fade-in">
+    <form id="ctaForm" onsubmit="handleSubmit(event)">
+      <div class="cta-form-row">
+        <input type="text" class="cta-input" placeholder="Nom de l'établissement" required id="ctaNom" />
+        <input type="tel" class="cta-input" placeholder="Téléphone (ex: +237 6XX XXX XXX)" required id="ctaTel" />
+        <input type="email" class="cta-input" placeholder="Email du directeur" required id="ctaEmail" />
+        <button type="submit" class="cta-submit">Inscrire mon école maintenant →</button>
+      </div>
+      <p class="cta-note">🔒 Vos données sont protégées. Aucun spam, promis.</p>
+    </form>
+    <div class="cta-success" id="ctaSuccess">
+      ✅ Merci ! Votre demande a été enregistrée. Notre équipe vous contacte sous 24h.
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="display:inline-flex">
+        <div class="nav-logo-icon" style="width:34px;height:34px;font-size:18px">🏫</div>
+        <span class="nav-logo-text" style="color:#fff">SchoolFlow</span>
+      </a>
+      <p>La plateforme de gestion scolaire conçue pour les établissements privés d'Afrique francophone. Simple, efficace, fiable.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produit</h4>
+      <ul>
+        <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+        <li><a href="#tarifs">Tarifs</a></li>
+        <li><a href="#systemes">À propos</a></li>
+        <li><a href="#inscription">Démo gratuite</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:support@edifytech.cm">support@edifytech.cm</a></li>
+        <li><a href="tel:+237600000000">+237 600 000 000</a></li>
+        <li><a href="#">Yaoundé, Cameroun</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 SchoolFlow · Made with ❤️ pour l'Afrique francophone</span>
+    <div class="footer-legal">
+      <a href="#">Mentions légales</a>
+      <a href="#">Politique de confidentialité</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Navbar scroll shadow ────────────────────────────────────────────────
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // ── Mobile menu ─────────────────────────────────────────────────────────
+  document.getElementById('menuBtn').addEventListener('click', () => {
+    navbar.classList.toggle('menu-open');
+  });
+  document.querySelectorAll('.nav-links a, .nav-cta').forEach(el => {
+    el.addEventListener('click', () => navbar.classList.remove('menu-open'));
+  });
+
+  // ── Fade-in on scroll ───────────────────────────────────────────────────
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // ── Animated counter ────────────────────────────────────────────────────
+  function animateCounter(el, target, duration = 1400) {
+    let start = 0, step = target / (duration / 16);
+    const tick = () => {
+      start = Math.min(start + step, target);
+      el.textContent = Math.round(start);
+      if (start < target) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  const heroObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      document.querySelectorAll('[data-count]').forEach(el => {
+        animateCounter(el, parseInt(el.dataset.count));
+      });
+      heroObserver.disconnect();
+    }
+  }, { threshold: 0.3 });
+  heroObserver.observe(document.querySelector('.hero-stats'));
+
+  // ── CTA form submit ─────────────────────────────────────────────────────
+  function handleSubmit(e) {
+    e.preventDefault();
+    const nom = document.getElementById('ctaNom').value.trim();
+    const tel = document.getElementById('ctaTel').value.trim();
+    const email = document.getElementById('ctaEmail').value.trim();
+
+    // Basic email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('Veuillez saisir une adresse email valide.');
+      return;
+    }
+    if (tel.replace(/\D/g, '').length < 8) {
+      alert('Veuillez saisir un numéro de téléphone valide.');
+      return;
+    }
+
+    document.getElementById('ctaForm').style.display = 'none';
+    document.getElementById('ctaSuccess').style.display = 'block';
+    console.log('Inscription:', { nom, tel, email });
+  }
+</script>
+</body>
+</html>

@@ -65,12 +65,9 @@ public class CreateEleveCommandHandler
 
         _context.Eleves.Add(eleve);
 
-        // ── 4. SAUVEGARDER ──────────────────────────────────────────────────
+        // ── 4. SAUVEGARDER (+ dispatch EleveInscritEvent via DbContext) ────────
+        // EleveInscritEventHandler génère les frais automatiquement
         await _context.SaveChangesAsync(ct);
-
-        // ── 5. GÉNÉRER LES FRAIS AUTOMATIQUES ──────────────────────────────
-        // Fait APRÈS le premier save pour avoir l'EleveId
-        await GenererFraisAutomatiquesAsync(eleve.Id, ecoleId, classe.Niveau, classe.AnneeScolaireId, ct);
 
         return Result<CreateEleveResponse>.Success(
             new CreateEleveResponse(eleve.Id, matricule));
@@ -109,94 +106,4 @@ public class CreateEleveCommandHandler
         return newMatricule;
     }
 
-    private async Task GenererFraisAutomatiquesAsync(
-        Guid eleveId,
-        Guid ecoleId,
-        Niveau niveau,
-        Guid anneeScolaireId,
-        CancellationToken ct)
-    {
-        // Charger les types de frais auto de CETTE école uniquement
-        var typesFraisAuto = await _context.TypeFrais
-            .Where(t => t.EcoleId == ecoleId      // ← MULTI-TENANT
-                     && t.GenerationAutomatique
-                     && !t.IsArchived)
-            .ToListAsync(ct);
-
-        if (!typesFraisAuto.Any()) return;
-
-        var anneeScolaire = await _context.AnneeScolaires
-            .Include(a => a.Periodes)
-            .FirstOrDefaultAsync(a => a.Id == anneeScolaireId && a.IsActive, ct);
-
-        if (anneeScolaire is null) return;
-
-        var fraisListe = new List<Frais>();
-
-        foreach (var typeFrais in typesFraisAuto)
-        {
-            if (!typeFrais.MontantsParNiveau.TryGetValue(niveau, out var montant))
-                continue;
-
-            if (typeFrais.Categorie == CategorieFrais.Inscription)
-            {
-                // Frais unique à l'inscription
-                fraisListe.Add(new Frais
-                {
-                    EcoleId = ecoleId,
-                    EleveId = eleveId,
-                    TypeFraisId = typeFrais.Id,
-                    Montant = montant,
-                    DateEcheance = DateTime.UtcNow.AddDays(30),
-                    Remarques = "Frais d'inscription — généré automatiquement"
-                });
-            }
-            else if (typeFrais.Categorie == CategorieFrais.Scolarite)
-            {
-                // Frais répartis sur les trimestres
-                var trimestres = anneeScolaire.Periodes
-                    .Where(p => p.Type == TypePeriode.Trimestre)
-                    .OrderBy(p => p.Numero)
-                    .ToList();
-
-                if (trimestres.Any())
-                {
-                    var montantParTrimestre = Math.Round(montant / trimestres.Count, 0);
-
-                    foreach (var trimestre in trimestres)
-                    {
-                        fraisListe.Add(new Frais
-                        {
-                            EcoleId = ecoleId,
-                            EleveId = eleveId,
-                            TypeFraisId = typeFrais.Id,
-                            PeriodeId = trimestre.Id,
-                            Montant = montantParTrimestre,
-                            DateEcheance = trimestre.DateDebut.AddDays(15),
-                            Remarques = $"Scolarité {trimestre.Libelle} — généré automatiquement"
-                        });
-                    }
-                }
-                else
-                {
-                    // Pas de trimestres → frais annuel unique
-                    fraisListe.Add(new Frais
-                    {
-                        EcoleId = ecoleId,
-                        EleveId = eleveId,
-                        TypeFraisId = typeFrais.Id,
-                        Montant = montant,
-                        DateEcheance = DateTime.UtcNow.AddDays(60),
-                        Remarques = "Scolarité annuelle — généré automatiquement"
-                    });
-                }
-            }
-        }
-
-        if (fraisListe.Any())
-        {
-            _context.Frais.AddRange(fraisListe);
-            await _context.SaveChangesAsync(ct);
-        }
-    }
 }

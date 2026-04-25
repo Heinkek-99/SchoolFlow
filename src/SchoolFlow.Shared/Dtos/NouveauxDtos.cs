@@ -70,6 +70,14 @@ public record EcoleListItemDto(
     DateTime CreatedAt
 );
 
+public record EcolePendingDto(
+    Guid Id,
+    string Nom,
+    string? Email,
+    string TelephonePrincipal,
+    DateTime CreatedAt
+);
+
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
 
 /// <summary>

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(dotnet ef *)",
+      "Bash(dotnet run *)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl -sk --max-time 5 https://localhost:5294/health)",
+      "Bash(curl -sk --max-time 5 http://localhost:5294/health)",
+      "PowerShell(Stop-Process -Name \"SchoolFlow.Api\" -Force -ErrorAction SilentlyContinue)"
+    ]
+  }
+}

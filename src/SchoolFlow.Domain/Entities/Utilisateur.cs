@@ -125,5 +125,6 @@ public enum Role
     Admin = 1,
     Directeur = 2,
     Secretaire = 3,
-    Comptable = 4
+    Comptable = 4,
+    Enseignant = 5
 }

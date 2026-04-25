@@ -41,10 +41,11 @@ public record PaiementListItemDto(
 
 public record VentilationProposeeDto(
     Guid EleveId,
-    string NomCompletEleve,
-    string Matricule,
-    decimal SoldeRestant,
-    decimal MontantPropose,
-    string Justification
+    string EleveNom,
+    Guid FraisId,
+    string LibelleFrais,
+    decimal MontantSuggere,
+    decimal SoldeAvant,
+    decimal SoldeApres
 );
 

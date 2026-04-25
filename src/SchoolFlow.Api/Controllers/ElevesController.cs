@@ -3,14 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using SchoolFlow.Application.Common.Interfaces;
 using SchoolFlow.Application.Eleves.Commands;
 using SchoolFlow.Application.Eleves.Queries;
+using SchoolFlow.Application.Evaluations.Handlers;
 using SchoolFlow.Shared.Dtos;
 
-namespace SchoolFlow.API.Controllers;
+namespace SchoolFlow.Api.Controllers;
 
 /// <summary>
 /// Gestion des élèves
 /// </summary>
-[Authorize]
+[Authorize(Policy = "TenantAccess")]
 public class ElevesController : BaseApiController
 {
     private readonly IFileStorageService _fileStorage;
@@ -157,6 +158,18 @@ public class ElevesController : BaseApiController
     public async Task<IActionResult> GetByFamille(Guid familleId)
     {
         var result = await Mediator.Send(new GetElevesByFamilleQuery(familleId));
+        return Ok(result.Data);
+    }
+
+    /// <summary>
+    /// Obtenir les notes publiées d'un élève
+    /// </summary>
+    [HttpGet("{id:guid}/notes")]
+    public async Task<IActionResult> GetNotes(
+        Guid id, [FromQuery] Guid? periodeId, CancellationToken ct)
+    {
+        var result = await Mediator.Send(new GetNotesEleveQuery(id, periodeId), ct);
+        if (!result.IsSuccess) return BadRequest(new { error = result.Error });
         return Ok(result.Data);
     }
 

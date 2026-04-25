@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolFlow.API.Controllers;
 using SchoolFlow.Application.TypesFrais.Commands;
 using SchoolFlow.Application.TypesFrais.Queries;
 using SchoolFlow.Domain.Entities;
 
 namespace SchoolFlow.Api.Controllers;
 
-[Authorize]
+[ApiController]
+[Route("api/types-frais")]
+[Authorize(Policy = "TenantAccess")]
 public class TypesFraisController : BaseApiController
 {
     [HttpGet]
@@ -34,6 +35,14 @@ public class TypesFraisController : BaseApiController
             id, request.Libelle, request.Description,
             request.IsObligatoire, request.GenerationAutomatique, request.MontantsParNiveau);
         var result = await Mediator.Send(command, ct);
+        return result.IsSuccess ? Ok(new { message = result.Data }) : BadRequest(new { error = result.Error });
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Archive(Guid id, CancellationToken ct)
+    {
+        var result = await Mediator.Send(new ArchiveTypeFraisCommand(id), ct);
         return result.IsSuccess ? Ok(new { message = result.Data }) : BadRequest(new { error = result.Error });
     }
 }

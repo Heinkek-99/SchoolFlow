@@ -22,6 +22,9 @@ public class CreateTypeFraisCommandHandler : IRequestHandler<CreateTypeFraisComm
     {
         var ecoleId = _currentUser.EcoleId;
 
+        if (ecoleId == Guid.Empty)
+            return Result<Guid>.Failure("Contexte école manquant — reconnectez-vous.");
+
         var codeExiste = await _context.TypeFrais
             .AnyAsync(t => t.EcoleId == ecoleId && t.Code == request.Code.ToUpper(), ct);
 

@@ -21,4 +21,10 @@ public interface ISchoolFlowReadService
  
     Task<IReadOnlyList<EleveListDto>> GetElevesParClasseAsync(
         Guid ecoleId, Guid classeId, CancellationToken ct = default);
+
+    Task<IReadOnlyList<BulletinResumeDto>> GetBulletinsClasseAsync(
+        Guid ecoleId, Guid classeId, Guid periodeId, CancellationToken ct = default);
+
+    Task<EmploiDuTempsClasseDto> GetEmploiDuTempsClasseAsync(
+        Guid ecoleId, Guid classeId, Guid anneeScolaireId, CancellationToken ct = default);
 }

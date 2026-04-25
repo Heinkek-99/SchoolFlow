@@ -41,7 +41,6 @@ public class DatabaseSeeder
         {
             // La DB existe déjà — vérifier seulement les données manquantes critiques
             await CorrigerDonneesManquantes(ct);
-            await NettoyerDonneesTestAsync(ct);
             _logger.LogInformation("Base déjà seedée — vérification des données manquantes effectuée.");
             return;
         }
@@ -530,57 +529,108 @@ public class DatabaseSeeder
         _logger.LogInformation("Matières seedées ({Count}) pour EcoleId={EcoleId}", matieres.Length, ecoleId);
     }
 
-    private async Task NettoyerDonneesTestAsync(CancellationToken ct)
+    public async Task NettoyerDonneesTestAsync()
     {
-        // Années scolaires de test
+        // Matières de test (code TZ*)
+        var matTest = await _context.Matieres
+            .Where(m => m.Code.StartsWith("TZ"))
+            .ToListAsync();
+        if (matTest.Any())
+        {
+            _context.Matieres.RemoveRange(matTest);
+            await _context.SaveChangesAsync();
+        }
+
+        // Années scolaires de test (libellé contient "-test-")
         var anneesTest = await _context.AnneeScolaires
             .Where(a => a.Libelle.Contains("-test-"))
-            .ToListAsync(ct);
-
+            .ToListAsync();
         if (anneesTest.Any())
         {
             _context.AnneeScolaires.RemoveRange(anneesTest);
-            await _context.SaveChangesAsync(ct);
+            await _context.SaveChangesAsync();
             _logger.LogInformation("Nettoyage: {Count} année(s) de test supprimée(s).", anneesTest.Count);
         }
 
-        // Dédoublonner évaluations (garder la plus récente par classe+matière+période+année)
+        // Classes de test
+        var classesTest = await _context.Classes
+            .Where(c => c.Code.Contains("-TEST"))
+            .ToListAsync();
+        if (classesTest.Any())
+        {
+            _context.Classes.RemoveRange(classesTest);
+            await _context.SaveChangesAsync();
+        }
+
+        // Disciplines avec date invalide (avant 2000) → corriger avec CreatedAt
+        var cutoff = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var discInvalides = await _context.Disciplines
+            .Where(d => d.DateDiscipline < cutoff)
+            .ToListAsync();
+        foreach (var d in discInvalides)
+            d.DateDiscipline = d.CreatedAt;
+        if (discInvalides.Any())
+            await _context.SaveChangesAsync();
+
+        // Dédoublonner évaluations (garder la plus récente par classe+matière+période+année+type)
         await _context.Database.ExecuteSqlRawAsync("""
             DELETE FROM "Evaluations"
             WHERE "Id" NOT IN (
                 SELECT "Id" FROM (
-                    SELECT DISTINCT ON ("ClasseId","MatiereId","PeriodeId","AnneeScolaireId") "Id"
+                    SELECT DISTINCT ON ("ClasseId","MatiereId","PeriodeId","AnneeScolaireId","Type") "Id"
                     FROM "Evaluations"
-                    ORDER BY "ClasseId","MatiereId","PeriodeId","AnneeScolaireId","CreatedAt" DESC
+                    ORDER BY "ClasseId","MatiereId","PeriodeId","AnneeScolaireId","Type","CreatedAt"
                 ) kept
             )
-            """, ct);
+            """);
 
-        // Dédoublonner disciplines (garder la plus récente par élève+type+motif)
+        // Dédoublonner disciplines (garder la plus récente par élève+motif+type)
         await _context.Database.ExecuteSqlRawAsync("""
             DELETE FROM "Disciplines"
             WHERE "Id" NOT IN (
                 SELECT "Id" FROM (
-                    SELECT DISTINCT ON ("EleveId","Type","Motif") "Id"
+                    SELECT DISTINCT ON ("EleveId","Motif","Type") "Id"
                     FROM "Disciplines"
-                    ORDER BY "EleveId","Type","Motif","DateDiscipline" DESC
+                    ORDER BY "EleveId","Motif","Type","CreatedAt"
                 ) kept
             )
-            """, ct);
+            """);
 
-        // Dédoublonner examens (garder le plus récent par nom+année, cascades les inscriptions)
+        // Dédoublonner inscriptions examen puis examens (cascade gère InscriptionsExamen)
+        await _context.Database.ExecuteSqlRawAsync("""
+            DELETE FROM "InscriptionsExamen"
+            WHERE "ExamenId" NOT IN (
+                SELECT "Id" FROM (
+                    SELECT DISTINCT ON ("Nom","AnneeScolaireId") "Id"
+                    FROM "Examens"
+                    ORDER BY "Nom","AnneeScolaireId","CreatedAt"
+                ) kept
+            )
+            """);
         await _context.Database.ExecuteSqlRawAsync("""
             DELETE FROM "Examens"
             WHERE "Id" NOT IN (
                 SELECT "Id" FROM (
                     SELECT DISTINCT ON ("Nom","AnneeScolaireId") "Id"
                     FROM "Examens"
-                    ORDER BY "Nom","AnneeScolaireId","CreatedAt" DESC
+                    ORDER BY "Nom","AnneeScolaireId","CreatedAt"
                 ) kept
             )
-            """, ct);
+            """);
 
-        _logger.LogInformation("Nettoyage doublons test terminé.");
+        // Dédoublonner créneaux horaires
+        await _context.Database.ExecuteSqlRawAsync("""
+            DELETE FROM "CreneauxHoraires"
+            WHERE "Id" NOT IN (
+                SELECT "Id" FROM (
+                    SELECT DISTINCT ON ("ClasseId","MatiereId","Jour","HeureDebut") "Id"
+                    FROM "CreneauxHoraires"
+                    ORDER BY "ClasseId","MatiereId","Jour","HeureDebut","CreatedAt"
+                ) kept
+            )
+            """);
+
+        _logger.LogInformation("Données de test nettoyées.");
     }
 
     // ─── HELPERS ─────────────────────────────────────────────────────────────────

@@ -13,23 +13,28 @@ public class JwtClaimsMiddleware
     {
         if (context.User.Identity?.IsAuthenticated == true)
         {
-            var userId   = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            var ecoleIdStr = context.User.FindFirst("ecoleId")?.Value;  // fixed: was "ecole_id"
-            var username = context.User.FindFirst(JwtRegisteredClaimNames.UniqueName)?.Value;
-            var role     = context.User.FindFirst("role")?.Value;
-            var prenom   = context.User.FindFirst(JwtRegisteredClaimNames.GivenName)?.Value;
-            var nom      = context.User.FindFirst(JwtRegisteredClaimNames.FamilyName)?.Value;
+            var userId     = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                          ?? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var ecoleIdStr = context.User.FindFirst("ecoleId")?.Value;
+            var username   = context.User.FindFirst(JwtRegisteredClaimNames.UniqueName)?.Value
+                          ?? context.User.FindFirst("unique_name")?.Value
+                          ?? context.User.Identity.Name;
+            var role       = context.User.FindFirst("role")?.Value
+                          ?? context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            var prenom     = context.User.FindFirst(JwtRegisteredClaimNames.GivenName)?.Value ?? "";
+            var nom        = context.User.FindFirst(JwtRegisteredClaimNames.FamilyName)?.Value ?? "";
 
-            if (Guid.TryParse(userId, out var userGuid) && username is not null && role is not null)
+            // SuperAdmin → ecoleIdStr = "" → Guid.Empty (sentinel, pas d'exception)
+            var ecoleId = Guid.TryParse(ecoleIdStr, out var parsedEcole) ? parsedEcole : Guid.Empty;
+
+            // SetUser toujours appelé si userId parseable — username/role default à "" si remappés
+            if (Guid.TryParse(userId, out var userGuid))
             {
-                // SuperAdmin a ecoleId vide → Guid.Empty (sentinel)
-                var ecoleGuid = Guid.TryParse(ecoleIdStr, out var parsed) ? parsed : Guid.Empty;
-
                 currentUserService.SetUser(
                     userId: userGuid,
-                    ecoleId: ecoleGuid,
-                    username: username,
-                    role: role,
+                    ecoleId: ecoleId,
+                    username: username ?? "",
+                    role: role ?? "",
                     nomComplet: $"{prenom} {nom}".Trim()
                 );
             }
@@ -38,4 +43,3 @@ public class JwtClaimsMiddleware
         await _next(context);
     }
 }
- 

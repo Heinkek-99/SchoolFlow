@@ -55,9 +55,14 @@ public record MettreAJourEcoleCommand(
 ) : IRequest<Result<string>>;
  
 // ─── UPLOAD LOGO ─────────────────────────────────────────────────────────────
- 
+
 public record UploadLogoEcoleCommand(
     Guid EcoleId,
     string LogoPath
 ) : IRequest<Result<string>>;
+
+// ─── SUSPENDRE ÉCOLE (SuperAdmin uniquement) ─────────────────────────────────
+
+public record SuspendreEcoleCommand(Guid Id, string Raison)
+    : IRequest<Result<string>>;
  

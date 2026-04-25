@@ -31,6 +31,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<VentilationPaiement> VentilationsPaiement => Set<VentilationPaiement>();
     public DbSet<Note> Notes => Set<Note>();
     public DbSet<Matiere> Matieres => Set<Matiere>();
+    public DbSet<Enseignant> Enseignants => Set<Enseignant>();
+    public DbSet<MatiereEnseignant> MatiereEnseignants => Set<MatiereEnseignant>();
+    public DbSet<EvaluationPlanifiee> Evaluations => Set<EvaluationPlanifiee>();
+    public DbSet<Bulletin> Bulletins => Set<Bulletin>();
+    public DbSet<LigneBulletin> LignesBulletin => Set<LigneBulletin>();
+    public DbSet<CreneauHoraire> CreneauxHoraires => Set<CreneauHoraire>();
+    public DbSet<Discipline> Disciplines => Set<Discipline>();
+    public DbSet<Examen> Examens => Set<Examen>();
+    public DbSet<InscriptionExamen> InscriptionsExamen => Set<InscriptionExamen>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Ecole> Ecoles => Set<Ecole>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
@@ -79,6 +88,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.EventType).HasMaxLength(500).IsRequired();
             entity.HasIndex(e => e.ProcessedAt);
+            entity.HasIndex(e => new { e.ProcessedAt, e.RetryCount });
         });
  
         // ── ECOLE ─────────────────────────────────────────────────────────────
@@ -107,6 +117,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         {
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Username).IsUnique();
+            entity.HasIndex(e => new { e.Username, e.IsArchived });
             entity.Property(e => e.Username).HasMaxLength(50).IsRequired();
             entity.Property(e => e.PasswordHash).HasMaxLength(500).IsRequired();
             entity.Property(e => e.Nom).HasMaxLength(100).IsRequired();
@@ -129,6 +140,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Property(e => e.TelephonePrincipal).HasMaxLength(20).IsRequired();
             entity.Property(e => e.Adresse).HasMaxLength(500).IsRequired();
             entity.Property(e => e.Ville).HasMaxLength(100).IsRequired();
+            entity.HasIndex(f => new { f.EcoleId, f.IsArchived });
+            entity.HasIndex(f => f.NomPere);
             entity.HasMany(f => f.Eleves).WithOne(e => e.Famille)
                 .HasForeignKey(e => e.FamilleId).OnDelete(DeleteBehavior.Restrict);
             entity.HasMany(f => f.Paiements).WithOne(p => p.Famille)
@@ -149,6 +162,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         {
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Matricule).IsUnique();
+            entity.HasIndex(e => new { e.EcoleId, e.Statut, e.IsArchived });
+            entity.HasIndex(e => new { e.FamilleId, e.IsArchived });
             entity.Property(e => e.Matricule).HasMaxLength(20).IsRequired();
             entity.Property(e => e.Nom).HasMaxLength(100).IsRequired();
             entity.Property(e => e.Prenom).HasMaxLength(100).IsRequired();
@@ -177,6 +192,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Property(e => e.SousSysteme).HasConversion<string>();
             entity.Property(e => e.Statut).HasConversion<string>();
             entity.Property(e => e.FraisScolarite).HasColumnType("decimal(18,2)");
+            entity.HasIndex(e => new { e.EcoleId, e.AnneeScolaireId, e.IsArchived });
             entity.Ignore(e => e.EffectifActuel);
             entity.Ignore(e => e.EstPleine);
             entity.Ignore(e => e.PlacesDisponibles);
@@ -196,6 +212,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Ignore(e => e.PourcentagePaye);
             entity.Ignore(e => e.StatutPaiement);
             // PeriodeId nullable — les frais d'inscription n'ont pas de période
+            entity.HasIndex(f => new { f.EleveId, f.IsArchived });
+            entity.HasIndex(f => new { f.EcoleId, f.IsArchived });
             entity.HasOne(f => f.Periode)
                 .WithMany()
                 .HasForeignKey(f => f.PeriodeId)
@@ -236,6 +254,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.Property(e => e.NumeroPaiement).HasMaxLength(30).IsRequired();
             entity.Property(e => e.MontantTotal).HasColumnType("decimal(18,2)");
             entity.Property(e => e.ModePaiement).HasConversion<string>();
+            entity.HasIndex(e => new { e.EcoleId, e.DatePaiement, e.IsArchived });
             entity.Ignore(e => e.IsVentilationComplete);
             entity.Ignore(e => e.NombreElevesBeneficiaires);
             entity.HasMany(p => p.Ventilations).WithOne(v => v.Paiement)
@@ -252,6 +271,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<VentilationPaiement>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.HasIndex(v => v.PaiementId);
             entity.Property(e => e.MontantVentile).HasColumnType("decimal(18,2)");
             // IsRequired(false) évite le warning EF "query filter on required end"
             entity.HasOne(v => v.Eleve)
@@ -265,6 +285,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<AnneeScolaire>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.EcoleId, e.IsActive });
             entity.HasMany(a => a.Periodes).WithOne(p => p.AnneeScolaire)
                 .HasForeignKey(p => p.AnneeScolaireId).OnDelete(DeleteBehavior.Cascade);
         });
@@ -281,6 +302,21 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Valeur).HasColumnType("decimal(5,2)");
             entity.Property(e => e.NoteSur).HasColumnType("decimal(5,2)");
+            entity.Property(e => e.Type).HasConversion<string>();
+            entity.Ignore(e => e.ValeurSur20);
+            entity.Ignore(e => e.Appreciation);
+            entity.HasOne(e => e.Eleve).WithMany(el => el.Notes)
+                .HasForeignKey(e => e.EleveId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Matiere).WithMany(m => m.Notes)
+                .HasForeignKey(e => e.MatiereId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Periode).WithMany()
+                .HasForeignKey(e => e.PeriodeId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => new { e.EleveId, e.PeriodeId, e.EcoleId });
+            entity.HasIndex(e => new { e.EvaluationId, e.EleveId });
+            entity.HasOne(e => e.Evaluation).WithMany(ev => ev.Notes)
+                .HasForeignKey(e => e.EvaluationId).IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasQueryFilter(e => !e.IsArchived);
         });
 
         // ── MATIERE ───────────────────────────────────────────────────────────
@@ -289,6 +325,128 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
             entity.Property(e => e.Libelle).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Coefficient).HasColumnType("decimal(4,2)");
+            entity.Property(e => e.SousSysteme).HasConversion<string>();
+            entity.HasQueryFilter(e => !e.IsArchived);
+        });
+
+        // ── ENSEIGNANT ────────────────────────────────────────────────────────
+        modelBuilder.Entity<Enseignant>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.Utilisateur).WithMany()
+                .HasForeignKey(e => e.UtilisateurId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasQueryFilter(e => !e.IsArchived);
+        });
+
+        // ── MATIERE ENSEIGNANT ────────────────────────────────────────────────
+        modelBuilder.Entity<MatiereEnseignant>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.EnseignantId, e.MatiereId, e.ClasseId, e.AnneeScolaireId })
+                .IsUnique();
+            entity.HasOne(e => e.Enseignant).WithMany(en => en.Matieres)
+                .HasForeignKey(e => e.EnseignantId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Matiere).WithMany()
+                .HasForeignKey(e => e.MatiereId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Classe).WithMany()
+                .HasForeignKey(e => e.ClasseId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── EVALUATION PLANIFIEE ──────────────────────────────────────────────
+        modelBuilder.Entity<EvaluationPlanifiee>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).HasConversion<string>();
+            entity.Property(e => e.NoteSur).HasColumnType("decimal(5,2)");
+            entity.HasOne(e => e.Classe).WithMany()
+                .HasForeignKey(e => e.ClasseId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Matiere).WithMany(m => m.Evaluations)
+                .HasForeignKey(e => e.MatiereId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => new { e.ClasseId, e.PeriodeId });
+            entity.HasOne(e => e.Periode).WithMany()
+                .HasForeignKey(e => e.PeriodeId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasQueryFilter(e => !e.IsArchived);
+        });
+
+        // ── BULLETIN ──────────────────────────────────────────────────────────
+        modelBuilder.Entity<Bulletin>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.EleveId, e.PeriodeId, e.AnneeScolaireId }).IsUnique();
+            entity.Property(e => e.MoyenneGenerale).HasColumnType("decimal(5,2)");
+            entity.Ignore(e => e.Appreciation);
+            entity.Ignore(e => e.MentionBac);
+            entity.HasMany(e => e.Lignes).WithOne(l => l.Bulletin)
+                .HasForeignKey(l => l.BulletinId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasQueryFilter(e => !e.IsArchived);
+        });
+
+        // ── LIGNE BULLETIN ────────────────────────────────────────────────────
+        modelBuilder.Entity<LigneBulletin>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.MoyenneMatiere).HasColumnType("decimal(5,2)");
+            entity.Property(e => e.Coefficient).HasColumnType("decimal(4,2)");
+            entity.Property(e => e.MoyennePonderee).HasColumnType("decimal(7,2)");
+            entity.Property(e => e.MoyenneClasse).HasColumnType("decimal(5,2)");
+            entity.HasOne(e => e.Matiere).WithMany()
+                .HasForeignKey(e => e.MatiereId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── CRENEAU HORAIRE ───────────────────────────────────────────────────
+        modelBuilder.Entity<CreneauHoraire>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Jour).HasConversion<string>();
+            entity.HasOne(e => e.Classe).WithMany()
+                .HasForeignKey(e => e.ClasseId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Matiere).WithMany(m => m.Creneaux)
+                .HasForeignKey(e => e.MatiereId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => new { e.ClasseId, e.AnneeScolaireId });
+            entity.HasOne(e => e.Enseignant).WithMany(en => en.Creneaux)
+                .HasForeignKey(e => e.EnseignantId).IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasQueryFilter(e => !e.IsArchived);
+        });
+
+        // ── DISCIPLINE ────────────────────────────────────────────────────────
+        modelBuilder.Entity<Discipline>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).HasConversion<string>();
+            entity.Property(e => e.Motif).HasMaxLength(500).IsRequired();
+            entity.HasOne(e => e.Eleve).WithMany()
+                .HasForeignKey(e => e.EleveId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.AnneeScolaire).WithMany()
+                .HasForeignKey(e => e.AnneeScolaireId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.SignaleParUtilisateur).WithMany()
+                .HasForeignKey(e => e.SignalePar).IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasQueryFilter(e => !e.IsArchived);
+        });
+
+        // ── EXAMEN ────────────────────────────────────────────────────────────
+        modelBuilder.Entity<Examen>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).HasConversion<string>();
+            entity.Property(e => e.Nom).HasMaxLength(100).IsRequired();
+            entity.HasOne(e => e.AnneeScolaire).WithMany()
+                .HasForeignKey(e => e.AnneeScolaireId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasQueryFilter(e => !e.IsArchived);
+        });
+
+        // ── INSCRIPTION EXAMEN ────────────────────────────────────────────────
+        modelBuilder.Entity<InscriptionExamen>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.ExamenId, e.EleveId }).IsUnique();
+            entity.Property(e => e.MoyenneExamen).HasColumnType("decimal(5,2)");
+            entity.HasOne(e => e.Examen).WithMany(ex => ex.Inscrits)
+                .HasForeignKey(e => e.ExamenId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Eleve).WithMany()
+                .HasForeignKey(e => e.EleveId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── PERIODE ───────────────────────────────────────────────────────────

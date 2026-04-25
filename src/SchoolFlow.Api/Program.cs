@@ -32,7 +32,9 @@ builder.Host.UseSerilog();
 // ============================================
 
 // Add Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+        opts.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 // FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
@@ -98,6 +100,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("DirecteurOrAdmin", policy => policy.RequireRole("Admin", "Directeur"));
     options.AddPolicy("ComptableAccess", policy => policy.RequireRole("Admin", "Directeur", "Comptable"));
     options.AddPolicy("SecretaireAccess", policy => policy.RequireRole("Admin", "Directeur", "Secretaire"));
+    // Bloque SuperAdmin sur les endpoints métier — il n'appartient à aucune école
+    options.AddPolicy("TenantAccess", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireAssertion(ctx => !ctx.User.IsInRole("SuperAdmin")));
 });
 
 // ============================================
@@ -188,16 +194,30 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 // 8. MIDDLEWARE PIPELINE
 // ============================================
 
-// Exception Handler (Development vs Production)
+// Exception handler global — retourne JSON 500 avec message pour diagnostic
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        var feature = context.Features
+            .Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+        if (feature is not null)
+        {
+            Log.Error(feature.Error, "Unhandled exception");
+            await context.Response.WriteAsync(
+                System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    error = feature.Error.Message,
+                    type  = feature.Error.GetType().Name
+                }));
+        }
+    });
+});
+
 if (app.Environment.IsDevelopment())
-{
     app.UseDeveloperExceptionPage();
-}
-else
-{
-    app.UseExceptionHandler("/error");
-    app.UseHsts();
-}
 
 // Swagger UI
 app.UseSwagger();
@@ -222,9 +242,8 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 // ============================================
-// 9. DATABASE MIGRATION AUTO (Dev uniquement)
+// 9. DATABASE MIGRATION + SEED
 // ============================================
-if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -234,9 +253,18 @@ if (app.Environment.IsDevelopment())
         await dbContext.Database.MigrateAsync();
         Log.Information("✅ Database migrations applied successfully");
 
-        var seeder = scope.ServiceProvider.GetRequiredService<SchoolFlow.Infrastructure.DatabaseSeeder>();
-        await seeder.SeedAsync();
-        Log.Information("✅ Database seeding completed");
+        if (app.Environment.IsDevelopment())
+        {
+            var seeder = scope.ServiceProvider.GetRequiredService<SchoolFlow.Infrastructure.DatabaseSeeder>();
+            await seeder.SeedAsync();
+            await seeder.CorrigerEcoleIdAsync();
+            await seeder.NettoyerDonneesTestAsync();
+            Log.Information("✅ Database seeding completed");
+        }
+        else
+        {
+            Log.Information("✅ Production — seed ignoré, migrations appliquées.");
+        }
     }
     catch (Exception ex)
     {

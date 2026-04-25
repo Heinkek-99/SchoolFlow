@@ -7,46 +7,48 @@ using SchoolFlow.Domain.Entities;
 
 namespace SchoolFlow.Application.Paiements.Handlers;
 
-/// <summary>
-/// Handler APRÈS refactoring.
-/// 
-/// AVANT (problème) :
-///   → ImputerPaiementSurEleve() avec 50 lignes de logique FIFO dans le Handler
-///   → Le Handler "pense" — il décide comment imputer
-///
-/// APRÈS (correct) :
-///   → Le Handler orchestre : Charger → Appeler Domain → Sauvegarder
-///   → La logique FIFO est dans Paiement.AppliquerVentilation()
-///   → Les Domain Events sont levés dans le Domain, publiés ici après Save
-///
-/// Pattern : Load → Act → Save → Publish Events
-/// </summary>
-public class EnregistrerPaiementCommandHandler 
+public class EnregistrerPaiementCommandHandler
     : IRequestHandler<EnregistrerPaiementCommand, Result<string>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IPublisher _publisher; // MediatR IPublisher pour les domain events
     private readonly ICurrentUserService _currentUser;
 
     public EnregistrerPaiementCommandHandler(
         IApplicationDbContext context,
-        IPublisher publisher,
         ICurrentUserService currentUser)
     {
         _context = context;
-        _publisher = publisher;
         _currentUser = currentUser;
     }
 
     public async Task<Result<string>> Handle(
-        EnregistrerPaiementCommand request, 
+        EnregistrerPaiementCommand request,
         CancellationToken ct)
     {
+        var ecoleId = _currentUser.EcoleId;
+        if (ecoleId == Guid.Empty)
+            return Result<string>.Failure("Contexte école manquant — reconnectez-vous.");
+
+        // ── VALIDATIONS ────────────────────────────────────────────────────
+        if (request.DatePaiement.Date > DateTime.UtcNow.Date)
+            return Result<string>.Failure("La date de paiement ne peut pas être dans le futur.");
+
+        if (request.MontantTotal <= 0)
+            return Result<string>.Failure("Le montant doit être positif.");
+
+        if (!request.Ventilations.Any())
+            return Result<string>.Failure("Au moins une ventilation est requise.");
+
+        var totalVentile = request.Ventilations.Sum(v => v.Montant);
+        if (Math.Abs(totalVentile - request.MontantTotal) > 0.01m)
+            return Result<string>.Failure(
+                $"Somme des ventilations ({totalVentile:N0}) ≠ montant total ({request.MontantTotal:N0}) FCFA.");
+
         // ── ÉTAPE 1 : CHARGER ──────────────────────────────────────────────
         var famille = await _context.Familles
             .Include(f => f.Eleves)
-            .FirstOrDefaultAsync(f => f.Id == request.FamilleId 
-                                   && f.EcoleId == _currentUser.EcoleId, ct);
+            .FirstOrDefaultAsync(f => f.Id == request.FamilleId
+                                   && f.EcoleId == ecoleId, ct);
 
         if (famille is null)
             return Result<string>.Failure("Famille introuvable.");
@@ -66,7 +68,7 @@ public class EnregistrerPaiementCommandHandler
             .ToListAsync(ct);
 
         // ── ÉTAPE 2 : AGIR (le Domain fait le travail) ──────────────────────
-        var numeroPaiement = await GenererNumeroPaiementAsync(ct);
+        var numeroPaiement = await GenererNumeroPaiementAsync(ecoleId, ct);
 
         var paiement = Paiement.Creer(
             ecoleId: _currentUser.EcoleId,
@@ -105,22 +107,18 @@ public class EnregistrerPaiementCommandHandler
         // ── ÉTAPE 3 : SAUVEGARDER ───────────────────────────────────────────
         await _context.SaveChangesAsync(ct);
 
-        // ── ÉTAPE 4 : PUBLIER LES DOMAIN EVENTS ────────────────────────────
-        // Les events ont été collectés dans le domain pendant l'Act.
-        // On les publie ICI, après le commit, pour garantir la cohérence.
-        foreach (var domainEvent in paiement.DomainEvents)
-            await _publisher.Publish(domainEvent, ct);
-
-        paiement.ClearDomainEvents();
+        // ApplicationDbContext.SaveChangesAsync dispatche et efface les domain events.
 
         return Result<string>.Success(numeroPaiement);
     }
 
-    private async Task<string> GenererNumeroPaiementAsync(CancellationToken ct)
+    private async Task<string> GenererNumeroPaiementAsync(Guid ecoleId, CancellationToken ct)
     {
         var year = DateTime.UtcNow.Year;
+        var prefix = $"PAY-{year}";
+
         var lastNum = await _context.Paiements
-            .Where(p => p.NumeroPaiement.StartsWith($"PAY-{year}"))
+            .Where(p => p.EcoleId == ecoleId && p.NumeroPaiement.StartsWith(prefix))
             .OrderByDescending(p => p.NumeroPaiement)
             .Select(p => p.NumeroPaiement)
             .FirstOrDefaultAsync(ct);
@@ -128,10 +126,11 @@ public class EnregistrerPaiementCommandHandler
         var sequence = 1;
         if (lastNum is not null)
         {
-            var lastSeq = lastNum.Split('-').Last();
-            if (int.TryParse(lastSeq, out var num)) sequence = num + 1;
+            var parts = lastNum.Split('-');
+            if (parts.Length == 3 && int.TryParse(parts[2], out var num))
+                sequence = num + 1;
         }
 
-        return $"PAY-{year}-{sequence:D5}";
+        return $"{prefix}-{sequence:D5}";
     }
 }

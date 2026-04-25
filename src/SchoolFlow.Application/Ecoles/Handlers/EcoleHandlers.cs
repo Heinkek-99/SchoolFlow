@@ -111,6 +111,41 @@ public class MettreAJourEcoleCommandHandler
     }
 }
 
+// ─── UPDATE LOGO ────────────────────────────────────────────────────────────
+
+public class UploadLogoEcoleCommandHandler
+    : IRequestHandler<UploadLogoEcoleCommand, Result<string>>
+{
+    private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserService _currentUser;
+
+    public UploadLogoEcoleCommandHandler(IApplicationDbContext context, ICurrentUserService currentUser)
+    {
+        _context = context;
+        _currentUser = currentUser;
+    }
+
+    public async Task<Result<string>> Handle(UploadLogoEcoleCommand request, CancellationToken ct)
+    {
+        // On utilise le nom complet pour éviter la collision avec le namespace
+        var ecole = await _context.Ecoles
+            .FirstOrDefaultAsync(e => e.Id == request.EcoleId, ct);
+
+        if (ecole is null)
+            return Result<string>.Failure("École introuvable.");
+
+        if (_currentUser.Role != "SuperAdmin" && _currentUser.EcoleId != ecole.Id)
+        {
+            return Result<string>.Failure("Accès non autorisé.");
+        }
+
+        ecole.MettreAJourLogo(request.LogoPath);
+        await _context.SaveChangesAsync(ct);
+
+        return Result<string>.Success(request.LogoPath);
+    }
+}
+
 // ─── GET BY ID ────────────────────────────────────────────────────────────────
 
 public class GetEcoleByIdQueryHandler
@@ -206,5 +241,64 @@ public class GetAllEcolesQueryHandler
 
         return Result<PagedResultDto<EcoleListItemDto>>.Success(
             new PagedResultDto<EcoleListItemDto>(items, total, request.Page, request.PageSize));
+    }
+}
+
+// ─── SUSPENDRE ÉCOLE ─────────────────────────────────────────────────────────
+
+public class SuspendreEcoleCommandHandler
+    : IRequestHandler<SuspendreEcoleCommand, Result<string>>
+{
+    private readonly IApplicationDbContext _context;
+
+    public SuspendreEcoleCommandHandler(IApplicationDbContext context)
+        => _context = context;
+
+    public async Task<Result<string>> Handle(
+        SuspendreEcoleCommand request, CancellationToken ct)
+    {
+        var ecole = await _context.Ecoles
+            .FirstOrDefaultAsync(e => e.Id == request.Id, ct);
+
+        if (ecole is null)
+            return Result<string>.Failure("École introuvable.");
+
+        try
+        {
+            ecole.Suspendre(request.Raison);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<string>.Failure(ex.Message);
+        }
+
+        await _context.SaveChangesAsync(ct);
+
+        return Result<string>.Success($"École '{ecole.Nom}' suspendue. Raison : {request.Raison}");
+    }
+}
+
+// ─── GET ÉCOLES EN ATTENTE ────────────────────────────────────────────────────
+
+public class GetEcolesPendingQueryHandler
+    : IRequestHandler<GetEcolesPendingQuery, Result<List<EcolePendingDto>>>
+{
+    private readonly IApplicationDbContext _context;
+
+    public GetEcolesPendingQueryHandler(IApplicationDbContext context)
+        => _context = context;
+
+    public async Task<Result<List<EcolePendingDto>>> Handle(
+        GetEcolesPendingQuery request, CancellationToken ct)
+    {
+        var ecoles = await _context.Ecoles
+            .AsNoTracking()
+            .Where(e => e.Statut == StatutEcole.EnAttente)
+            .OrderBy(e => e.CreatedAt)
+            .Select(e => new EcolePendingDto(
+                e.Id, e.Nom, e.Email, e.TelephonePrincipal, e.CreatedAt))
+            .ToListAsync(ct);
+
+        return Result<List<EcolePendingDto>>.Success(ecoles);
     }
 }

@@ -22,6 +22,9 @@ public class CreateAnneeScolaireCommandHandler : IRequestHandler<CreateAnneeScol
     {
         var ecoleId = _currentUser.EcoleId;
 
+        if (ecoleId == Guid.Empty)
+            return Result<Guid>.Failure("Contexte école manquant — reconnectez-vous.");
+
         if (request.DateFin <= request.DateDebut)
             return Result<Guid>.Failure("La date de fin doit être postérieure à la date de début.");
 

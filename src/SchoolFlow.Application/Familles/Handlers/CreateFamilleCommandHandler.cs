@@ -19,9 +19,13 @@ public class CreateFamilleCommandHandler : IRequestHandler<CreateFamilleCommand,
 
     public async Task<Result<Guid>> Handle(CreateFamilleCommand request, CancellationToken ct)
     {
+        var ecoleId = _currentUser.EcoleId;
+        if (ecoleId == Guid.Empty)
+            return Result<Guid>.Failure("Contexte école manquant — reconnectez-vous.");
+
         // ← Factory method : lève FamilleCreeeEvent, valide les gardes métier
         var famille = Famille.Creer(
-            ecoleId: _currentUser.EcoleId,   // ← MULTI-TENANT
+            ecoleId: ecoleId,   // ← MULTI-TENANT
             nomPere: request.NomPere,
             prenomPere: request.PrenomPere,
             telephonePere: request.TelephonePere,

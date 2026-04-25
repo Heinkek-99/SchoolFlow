@@ -1,14 +1,15 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SchoolFlow.API.Controllers;
 using SchoolFlow.Application.Utilisateurs.Commands;
 using SchoolFlow.Application.Utilisateurs.Queries;
 using SchoolFlow.Domain.Entities;
 
 namespace SchoolFlow.Api.Controllers;
 
-[Authorize]
+[ApiController]
+[Route("api/utilisateurs")]
+[Authorize(Policy = "TenantAccess")]
 public class UtilisateursController : BaseApiController
 {
     [HttpGet]
